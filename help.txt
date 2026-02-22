@@ -1,0 +1,47 @@
+Senior Software Architect Analysis: Document-Validator
+1. Architecture Overview
+The project follows a three-tier architecture (Frontend / Backend / AI Model) for AI-powered document authenticity validation. It's a final-year project at an early scaffolding stage — most components are boilerplate or stubs.
+
+2. Current State Assessment
+Layer	Status	Maturity
+Frontend (React 19 + Vite + Tailwind)	Boilerplate — App.jsx is the default Vite counter template. Only FileUpload.jsx is custom.	~10%
+Backend (Flask)	Minimal — only /api/health and /api/upload (saves file to disk, no processing).	~10%
+AI Model	Skeleton only — DocumentValidator class with empty pass methods. No trained model, no OCR, no CNN.	~5%
+3. Critical Issues (Severity: High)
+#	Issue	Location	Impact
+S1	No AI integration — Backend uploads files but never calls the AI model. The two systems are completely disconnected.	app.py / model.py	Core feature non-functional
+S2	Path traversal vulnerability — file.filename is used directly in file.save() without sanitization via werkzeug.utils.secure_filename.	app.py:33	Arbitrary file write on server
+S3	No authentication implemented — JWT is referenced in README and axios.js interceptors, but backend has zero auth routes/middleware. PyJWT is in requirements but unused.	axios.js:17-21	Unauthorized access to all endpoints
+S4	Frontend not wired — App.jsx still renders the Vite default template. FileUpload component exists but is never imported/rendered.	App.jsx	Frontend is non-functional for its purpose
+S5	No database — README mentions "database verification" but there's no database dependency, ORM, schema, or connection anywhere.	Entire project	No persistent data storage
+S6	AI dependencies commented out — TensorFlow/PyTorch/Transformers are commented in requirements. No ML framework is actually declared.	requirements.txt:4-7	Cannot build any model
+4. Design & Structural Issues (Severity: Medium)
+#	Issue	Detail
+M1	Monolithic backend — Single app.py with routes, config, and logic in one file. No blueprints, no service layer, no separation of concerns.	
+M2	No routing in frontend — react-router-dom is a dependency but no routes are configured. No login page, dashboard, results page, etc.	
+M3	No environment files — .env files referenced in README but not templated (.env.example doesn't exist).	
+M4	Hardcoded secret key fallback — os.getenv('SECRET_KEY', 'your-secret-key-here') will run with an insecure default in production.	
+M5	No error handling strategy — Backend has no global error handler, no logging framework, no request validation middleware.	
+M6	File upload has no type/extension validation — Any file type is accepted and saved. No whitelist for document types (PDF, JPEG, PNG, etc.).	
+M7	recharts is unused — Listed as a dependency but no charting components exist.	
+M8	Folder naming — AI Model/ (with space) is problematic for CLI, CI/CD, and imports. Convention is ai_model/ or ml/.	
+5. Missing Architectural Components
+For a document validation system to be production-viable, these are absent:
+
+6. Recommended Target Architecture
+7. Priority Action Plan
+Priority	Task	Effort
+P0	Fix the path traversal vulnerability (secure_filename)	5 min
+P1	Restructure backend with Flask Blueprints (auth, upload, results)	2-3 hrs
+P1	Add database (SQLAlchemy + PostgreSQL/SQLite for dev) with User and Document models	3-4 hrs
+P1	Implement JWT authentication (register, login, protected routes)	3-4 hrs
+P1	Wire FileUpload into App.jsx, add React Router with pages	2-3 hrs
+P2	Implement AI model — choose framework, build CNN pipeline, integrate OCR (Tesseract/EasyOCR)	1-2 weeks
+P2	Connect backend upload to AI inference, return validation results	4-5 hrs
+P2	Build results/history frontend pages with Recharts visualization	4-5 hrs
+P3	Add input validation, logging, error handling, tests	1 week
+P3	Dockerize all three services	3-4 hrs
+8. Verdict
+The project is in a skeleton/scaffolding state. The README describes a feature-rich system, but the codebase is almost entirely boilerplate. The frontend is the default Vite template, the backend is 2 basic routes, and the AI model is empty stubs. There is a significant gap between the documented vision and the actual implementation.
+
+The foundational choices (React 19, Vite, Flask, Tailwind) are solid and appropriate. The architecture direction is sound — the execution just needs to begin. I'd recommend starting with P0 (security fix) immediately, then systematically working through P1 items to establish the core pipeline: Auth → Database → Upload → AI Inference → Results Display.
