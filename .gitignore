@@ -1,0 +1,17 @@
+Documentation/
+node_modules/
+dist/
+.env
+*.pyc
+__pycache__/
+instance/
+.vs/
+.vscode/
+bin/
+obj/
+*.user
+*.suo
+*.sln
+*.db
+frontend/build_log.txt
+help.txt
