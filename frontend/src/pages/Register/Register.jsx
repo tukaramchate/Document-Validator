@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import AlertMessage from '../../components/AlertMessage';
+import { ShieldCheck, Loader2 } from 'lucide-react';
 
 export default function Register() {
     const [name, setName] = useState('');
@@ -9,8 +11,12 @@ export default function Register() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { register } = useAuth();
+    const { register, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    if (isAuthenticated) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -48,7 +54,7 @@ export default function Register() {
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl shadow-lg shadow-brand-500/25 mb-4">
-                        <span className="text-white font-bold text-xl">DV</span>
+                        <ShieldCheck className="text-white" size={28} />
                     </div>
                     <h1 className="text-2xl font-bold text-surface-100">Create account</h1>
                     <p className="text-surface-400 mt-1">Get started with DocValidator</p>
@@ -56,15 +62,11 @@ export default function Register() {
 
                 {/* Form */}
                 <div className="card">
-                    {error && (
-                        <div className="mb-4 px-4 py-3 bg-danger-500/10 border border-danger-500/20 rounded-xl text-danger-400 text-sm">
-                            {error}
-                        </div>
-                    )}
+                    <AlertMessage type="error" message={error} onClose={() => setError('')} />
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                         <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1.5">Full Name</label>
+                            <label htmlFor="register-name" className="block text-sm font-medium text-surface-300 mb-1.5">Full Name</label>
                             <input
                                 id="register-name"
                                 type="text"
@@ -74,11 +76,12 @@ export default function Register() {
                                 placeholder="John Doe"
                                 required
                                 minLength={2}
+                                autoComplete="name"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1.5">Email</label>
+                            <label htmlFor="register-email" className="block text-sm font-medium text-surface-300 mb-1.5">Email</label>
                             <input
                                 id="register-email"
                                 type="email"
@@ -87,11 +90,12 @@ export default function Register() {
                                 className="input-field"
                                 placeholder="you@example.com"
                                 required
+                                autoComplete="email"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1.5">Password</label>
+                            <label htmlFor="register-password" className="block text-sm font-medium text-surface-300 mb-1.5">Password</label>
                             <input
                                 id="register-password"
                                 type="password"
@@ -101,11 +105,12 @@ export default function Register() {
                                 placeholder="Min. 6 characters"
                                 required
                                 minLength={6}
+                                autoComplete="new-password"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1.5">Confirm Password</label>
+                            <label htmlFor="register-confirm-password" className="block text-sm font-medium text-surface-300 mb-1.5">Confirm Password</label>
                             <input
                                 id="register-confirm-password"
                                 type="password"
@@ -114,6 +119,7 @@ export default function Register() {
                                 className="input-field"
                                 placeholder="Re-enter password"
                                 required
+                                autoComplete="new-password"
                             />
                         </div>
 
@@ -122,10 +128,11 @@ export default function Register() {
                             type="submit"
                             disabled={loading}
                             className="btn-primary w-full flex items-center justify-center gap-2"
+                            aria-label="Create your account"
                         >
                             {loading ? (
                                 <>
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <Loader2 className="w-4 h-4 animate-spin" />
                                     Creating account...
                                 </>
                             ) : (

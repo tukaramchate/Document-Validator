@@ -1,14 +1,20 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import AlertMessage from '../../components/AlertMessage';
+import { ShieldCheck, Loader2 } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    if (isAuthenticated) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,7 +42,7 @@ export default function Login() {
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl shadow-lg shadow-brand-500/25 mb-4">
-                        <span className="text-white font-bold text-xl">DV</span>
+                        <ShieldCheck className="text-white" size={28} />
                     </div>
                     <h1 className="text-2xl font-bold text-surface-100">Welcome back</h1>
                     <p className="text-surface-400 mt-1">Sign in to DocValidator</p>
@@ -44,15 +50,11 @@ export default function Login() {
 
                 {/* Form */}
                 <div className="card">
-                    {error && (
-                        <div className="mb-4 px-4 py-3 bg-danger-500/10 border border-danger-500/20 rounded-xl text-danger-400 text-sm">
-                            {error}
-                        </div>
-                    )}
+                    <AlertMessage type="error" message={error} onClose={() => setError('')} />
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                         <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1.5">Email</label>
+                            <label htmlFor="login-email" className="block text-sm font-medium text-surface-300 mb-1.5">Email</label>
                             <input
                                 id="login-email"
                                 type="email"
@@ -61,11 +63,12 @@ export default function Login() {
                                 className="input-field"
                                 placeholder="you@example.com"
                                 required
+                                autoComplete="email"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-surface-300 mb-1.5">Password</label>
+                            <label htmlFor="login-password" className="block text-sm font-medium text-surface-300 mb-1.5">Password</label>
                             <input
                                 id="login-password"
                                 type="password"
@@ -74,6 +77,7 @@ export default function Login() {
                                 className="input-field"
                                 placeholder="••••••••"
                                 required
+                                autoComplete="current-password"
                             />
                         </div>
 
@@ -82,10 +86,11 @@ export default function Login() {
                             type="submit"
                             disabled={loading}
                             className="btn-primary w-full flex items-center justify-center gap-2"
+                            aria-label="Sign in to your account"
                         >
                             {loading ? (
                                 <>
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <Loader2 className="w-4 h-4 animate-spin" />
                                     Signing in...
                                 </>
                             ) : (

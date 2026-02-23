@@ -1,9 +1,43 @@
 @import "tailwindcss";
 
-/* ─── Custom Theme ─── */
-@theme {
+:root {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
+  /* Default Dark Theme Variables */
+  --bg-main: #020617;
+  /* surface-950 */
+  --bg-surface: #0f172a;
+  /* surface-900 */
+  --text-primary: #f1f5f9;
+  /* surface-100 */
+  --text-secondary: #94a3b8;
+  /* surface-400 */
+  --text-muted: #64748b;
+  /* surface-500 */
+  --border-subtle: rgba(30, 41, 59, 0.5);
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --card-bg: rgba(15, 23, 42, 0.8);
+  --input-bg: rgba(30, 41, 59, 0.6);
+}
+
+:root.light {
+  --bg-main: #f8fafc;
+  /* surface-50 */
+  --bg-surface: #ffffff;
+  --text-primary: #0f172a;
+  /* surface-900 */
+  --text-secondary: #475569;
+  /* surface-600 */
+  --text-muted: #64748b;
+  /* surface-500 */
+  --border-subtle: rgba(226, 232, 240, 0.8);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --input-bg: rgba(241, 245, 249, 0.8);
+}
+
+/* ─── Custom Theme ─── */
+@theme {
   /* Brand Colors */
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
@@ -17,18 +51,14 @@
   --color-brand-900: #312e81;
   --color-brand-950: #1e1b4b;
 
-  /* Surface Colors */
-  --color-surface-50: #f8fafc;
-  --color-surface-100: #f1f5f9;
-  --color-surface-200: #e2e8f0;
-  --color-surface-300: #cbd5e1;
-  --color-surface-400: #94a3b8;
-  --color-surface-500: #64748b;
-  --color-surface-600: #475569;
-  --color-surface-700: #334155;
-  --color-surface-800: #1e293b;
-  --color-surface-900: #0f172a;
-  --color-surface-950: #020617;
+  /* Surface Colors mapped to root variables */
+  --color-surface-50: var(--bg-main);
+  --color-surface-100: var(--text-primary);
+  --color-surface-400: var(--text-secondary);
+  --color-surface-500: var(--text-muted);
+  --color-surface-800: var(--bg-surface);
+  --color-surface-900: var(--bg-surface);
+  --color-surface-950: var(--bg-main);
 
   /* Semantic Colors */
   --color-success-50: #ecfdf5;
@@ -89,11 +119,12 @@
 
 /* ─── Base Styles ─── */
 body {
-  background-color: var(--color-surface-950);
-  color: var(--color-surface-100);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 ::selection {
@@ -188,9 +219,9 @@ body {
 }
 
 .card {
-  background-color: rgba(15, 23, 42, 0.8);
+  background-color: var(--card-bg);
   backdrop-filter: blur(4px);
-  border: 1px solid var(--color-surface-800);
+  border: 1px solid var(--border-subtle);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -198,9 +229,9 @@ body {
 }
 
 .card-hover {
-  background-color: rgba(15, 23, 42, 0.8);
+  background-color: var(--card-bg);
   backdrop-filter: blur(4px);
-  border: 1px solid var(--color-surface-800);
+  border: 1px solid var(--border-subtle);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -215,16 +246,16 @@ body {
 .input-field {
   width: 100%;
   padding: 0.75rem 1rem;
-  background-color: rgba(30, 41, 59, 0.6);
-  border: 1px solid var(--color-surface-700);
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-subtle);
   border-radius: 0.75rem;
-  color: var(--color-surface-100);
+  color: var(--text-primary);
   transition: all 0.2s;
   outline: none;
 }
 
 .input-field::placeholder {
-  color: var(--color-surface-500);
+  color: var(--text-muted);
 }
 
 .input-field:focus {
@@ -233,9 +264,9 @@ body {
 }
 
 .glass-panel {
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: var(--glass-bg);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(30, 41, 59, 0.5);
+  border: 1px solid var(--border-subtle);
   border-radius: 1rem;
 }
 

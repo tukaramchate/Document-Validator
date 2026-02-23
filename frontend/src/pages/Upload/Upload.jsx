@@ -1,6 +1,19 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE_LABEL } from '../../utils/constants';
+import { validateFile, formatFileSize } from '../../utils/validators';
+import AlertMessage from '../../components/AlertMessage';
+import {
+    UploadCloud,
+    FileText,
+    X,
+    Search,
+    Rocket,
+    ShieldCheck,
+    Files,
+    Loader2
+} from 'lucide-react';
 
 export default function Upload() {
     const [file, setFile] = useState(null);
@@ -12,19 +25,15 @@ export default function Upload() {
     const { post } = useApi();
     const navigate = useNavigate();
 
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-    const maxSize = 16 * 1024 * 1024; // 16MB
-
-    const validateFile = (file) => {
-        if (!allowedTypes.includes(file.type)) {
-            setError('Invalid file type. Allowed: PDF, JPG, PNG');
-            return false;
+    const handleFileSelect = (selectedFile) => {
+        setError('');
+        if (!selectedFile) return;
+        const validationError = validateFile(selectedFile);
+        if (validationError) {
+            setError(validationError);
+            return;
         }
-        if (file.size > maxSize) {
-            setError('File too large. Maximum size: 16MB');
-            return false;
-        }
-        return true;
+        setFile(selectedFile);
     };
 
     const handleDrag = useCallback((e) => {
@@ -38,15 +47,11 @@ export default function Upload() {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
-        setError('');
-        const droppedFile = e.dataTransfer.files[0];
-        if (droppedFile && validateFile(droppedFile)) setFile(droppedFile);
+        handleFileSelect(e.dataTransfer.files[0]);
     }, []);
 
     const handleFileInput = (e) => {
-        setError('');
-        const selectedFile = e.target.files[0];
-        if (selectedFile && validateFile(selectedFile)) setFile(selectedFile);
+        handleFileSelect(e.target.files[0]);
     };
 
     const handleUploadAndValidate = async () => {
@@ -56,7 +61,6 @@ export default function Upload() {
         setUploadProgress(0);
 
         try {
-            // Upload
             const formData = new FormData();
             formData.append('file', file);
 
@@ -72,7 +76,6 @@ export default function Upload() {
             setUploading(false);
             setValidating(true);
 
-            // Validate
             await post(`/validate/${docId}`);
             navigate(`/results/${docId}`);
         } catch (err) {
@@ -82,74 +85,83 @@ export default function Upload() {
         }
     };
 
-    const formatSize = (bytes) => {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    };
-
     return (
-        <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-            <div>
-                <h1 className="text-2xl font-bold text-surface-100">Upload Document</h1>
-                <p className="text-surface-400 mt-1">Upload a document to verify its authenticity</p>
+        <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-brand-500/10 rounded-2xl flex items-center justify-center text-brand-400">
+                    <Files size={24} />
+                </div>
+                <div>
+                    <h1 className="text-3xl font-black text-surface-100 tracking-tight">Upload Document</h1>
+                    <p className="text-surface-400 mt-1 font-medium">Verify authenticity with AI-powered analysis</p>
+                </div>
             </div>
 
-            {error && (
-                <div className="px-4 py-3 bg-danger-500/10 border border-danger-500/20 rounded-xl text-danger-400 text-sm">
-                    {error}
-                </div>
-            )}
+            <AlertMessage type="error" message={error} onClose={() => setError('')} />
 
             {/* Drop Zone */}
             <div
-                className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 cursor-pointer ${dragActive
-                        ? 'border-brand-500 bg-brand-500/5 scale-[1.01]'
-                        : file
-                            ? 'border-success-500/40 bg-success-500/5'
-                            : 'border-surface-700 hover:border-surface-500 bg-surface-900/40'
+                className={`relative border-2 border-dashed rounded-[2.5rem] p-16 text-center transition-all duration-300 cursor-pointer overflow-hidden group ${dragActive
+                    ? 'border-brand-500 bg-brand-500/5 scale-[1.01]'
+                    : file
+                        ? 'border-success-500/40 bg-success-500/5'
+                        : 'border-surface-700 hover:border-surface-500 bg-surface-900/40'
                     }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
                 onClick={() => document.getElementById('file-input').click()}
+                role="button"
+                tabIndex={0}
+                aria-label="Upload document drop zone. Click or drag and drop a file here."
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') document.getElementById('file-input').click(); }}
             >
                 <input
                     id="file-input"
                     type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
+                    accept={ALLOWED_EXTENSIONS}
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select file to upload"
                 />
 
                 {file ? (
-                    <div className="space-y-3">
-                        <div className="inline-flex items-center justify-center w-14 h-14 bg-success-500/15 rounded-2xl mb-2">
-                            <span className="text-3xl">📄</span>
+                    <div className="space-y-6 animate-scale-in">
+                        <div className="relative inline-flex items-center justify-center w-20 h-20 bg-success-500/15 rounded-3xl mb-2">
+                            <FileText size={32} className="text-success-400" />
+                            <div className="absolute -top-2 -right-2 bg-success-500 text-white rounded-full p-1 shadow-lg">
+                                <ShieldCheck size={14} />
+                            </div>
                         </div>
                         <div>
-                            <p className="text-surface-200 font-medium">{file.name}</p>
-                            <p className="text-surface-500 text-sm">{formatSize(file.size)} — {file.type}</p>
+                            <p className="text-xl font-bold text-surface-200">{file.name}</p>
+                            <p className="text-surface-500 font-medium mt-1">{formatFileSize(file.size)} — {file.type}</p>
                         </div>
                         <button
                             onClick={(e) => { e.stopPropagation(); setFile(null); }}
-                            className="text-surface-400 text-sm hover:text-danger-400 transition-colors"
+                            className="flex items-center gap-2 mx-auto px-4 py-2 rounded-xl text-surface-400 text-sm font-bold bg-surface-800/50 hover:bg-danger-500/10 hover:text-danger-400 transition-all"
+                            aria-label="Remove selected file"
                         >
-                            Remove file
+                            <X size={16} />
+                            <span>Remove and change</span>
                         </button>
                     </div>
                 ) : (
-                    <div className="space-y-3">
-                        <div className="inline-flex items-center justify-center w-14 h-14 bg-brand-600/10 rounded-2xl mb-2">
-                            <span className="text-3xl">{dragActive ? '📥' : '📤'}</span>
+                    <div className="space-y-6">
+                        <div className="relative inline-flex items-center justify-center w-20 h-20 bg-brand-500/10 rounded-3xl mb-2 group-hover:scale-110 group-hover:bg-brand-500/20 transition-all duration-300">
+                            {dragActive ? (
+                                <Files size={32} className="text-brand-400 animate-bounce" />
+                            ) : (
+                                <UploadCloud size={32} className="text-brand-400" />
+                            )}
                         </div>
                         <div>
-                            <p className="text-surface-200 font-medium">
-                                {dragActive ? 'Drop your file here' : 'Drag & drop your document'}
+                            <p className="text-xl font-bold text-surface-200 tracking-tight">
+                                {dragActive ? 'Drop your file here' : 'Drag & drop document'}
                             </p>
-                            <p className="text-surface-500 text-sm mt-1">
-                                or click to browse — PDF, JPG, PNG up to 16MB
+                            <p className="text-surface-500 font-medium mt-2 max-w-xs mx-auto">
+                                or click to browse files — PDF, JPG, PNG up to {MAX_FILE_SIZE_LABEL}
                             </p>
                         </div>
                     </div>
@@ -158,21 +170,32 @@ export default function Upload() {
 
             {/* Upload Progress */}
             {(uploading || validating) && (
-                <div className="card space-y-3">
+                <div className="card rounded-[2rem] p-8 space-y-4 bg-surface-900/60 backdrop-blur-xl border-brand-500/20 shadow-2xl shadow-brand-500/5">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm text-surface-300">
-                            {validating ? '🔍 Analyzing document...' : '📤 Uploading...'}
-                        </span>
-                        <span className="text-sm text-brand-400">
-                            {validating ? 'AI Processing' : `${uploadProgress}%`}
+                        <div className="flex items-center gap-3">
+                            {validating ? (
+                                <Search size={20} className="text-brand-400 animate-pulse" />
+                            ) : (
+                                <UploadCloud size={20} className="text-brand-400" />
+                            )}
+                            <span className="font-bold text-surface-200">
+                                {validating ? 'Analyzing document authenticity...' : 'Uploading securely...'}
+                            </span>
+                        </div>
+                        <span className="text-sm font-black text-brand-400 tracking-widest">
+                            {validating ? 'AI ANALYSIS' : `${uploadProgress}%`}
                         </span>
                     </div>
-                    <div className="w-full bg-surface-800 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-surface-800 rounded-full h-3 overflow-hidden shadow-inner" role="progressbar" aria-valuenow={validating ? 100 : uploadProgress} aria-valuemin={0} aria-valuemax={100}>
                         <div
-                            className={`h-full rounded-full transition-all duration-500 ${validating ? 'bg-brand-500 animate-pulse-slow w-full' : 'bg-brand-500'
+                            className={`h-full rounded-full transition-all duration-500 relative ${validating ? 'bg-brand-500 w-full' : 'bg-brand-500'
                                 }`}
                             style={!validating ? { width: `${uploadProgress}%` } : {}}
-                        />
+                        >
+                            {validating && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
@@ -182,15 +205,19 @@ export default function Upload() {
                 id="upload-submit"
                 onClick={handleUploadAndValidate}
                 disabled={!file || uploading || validating}
-                className="btn-primary w-full flex items-center justify-center gap-2 py-3"
+                className="btn-primary w-full flex items-center justify-center gap-3 py-4.5 rounded-[1.25rem] text-lg font-bold shadow-2xl shadow-brand-500/25 hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:translate-y-0"
+                aria-label="Upload and validate selected document"
             >
                 {uploading || validating ? (
                     <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        {validating ? 'Validating...' : 'Uploading...'}
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{validating ? 'Validating...' : 'Uploading...'}</span>
                     </>
                 ) : (
-                    <>🚀 Upload & Validate</>
+                    <>
+                        <Rocket size={22} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        <span>Upload & Begin AI Validation</span>
+                    </>
                 )}
             </button>
         </div>
