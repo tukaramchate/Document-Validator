@@ -15,3 +15,4 @@ obj/
 *.db
 frontend/build_log.txt
 help.txt
+*.log
