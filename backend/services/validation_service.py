@@ -8,33 +8,30 @@ logger = logging.getLogger(__name__)
 
 
 # ────────────────────────────────────────────────────────────
-# Mock AI Functions (to be replaced with real AI model later)
+# AI Pipeline Stubs
+# These functions are placeholders. Replace each with the
+# real model call once the CNN is trained and OCR is integrated.
 # ────────────────────────────────────────────────────────────
 
 def mock_cnn_predict(image_path):
-    """Simulate CNN visual analysis score."""
+    """[STUB] CNN visual analysis — replace with real model inference."""
     return round(random.uniform(0.6, 0.95), 4)
 
 
 def mock_ocr_extract(image_path):
-    """Simulate OCR text extraction and confidence."""
+    """[STUB] OCR text extraction — replace with Tesseract/EasyOCR call."""
     return {
-        'fields': {
-            'name': 'Sample Name',
-            'id_number': '12345',
-            'institution': 'Sample Institution',
-            'date': '2025-01-15'
-        },
+        'fields': {},          # Replace with real extracted fields
         'confidence': round(random.uniform(0.7, 0.98), 4)
     }
 
 
 def mock_db_match(extracted_fields):
-    """Simulate database cross-verification."""
-    field_matches = {}
-    for key in extracted_fields:
-        field_matches[key] = random.choice([True, True, False])  # Weighted toward matches
+    """[STUB] Database cross-verification — replace with real DB fuzzy-match logic."""
+    if not extracted_fields:
+        return {'score': 0.0, 'matches': {}}
 
+    field_matches = {key: random.choice([True, True, False]) for key in extracted_fields}
     matched = sum(1 for v in field_matches.values() if v)
     total = len(field_matches)
     score = matched / total if total > 0 else 0.0
@@ -126,12 +123,13 @@ def revalidate_document(doc_id, user_id):
     # Delete existing result if present
     if document.result:
         db.session.delete(document.result)
-        db.session.flush()
+        db.session.flush()  # Flush deletion before expiring
         logger.info(f'Deleted existing result for document {doc_id} for re-validation')
 
-    # Expire ALL objects in session to ensure no stale relationships
-    db.session.expire_all()
+    # Commit. Then expire only the specific document object to clear stale
+    # relationship cache so document.result is correctly read as None.
     db.session.commit()
+    db.session.expire(document)
 
     # Re-run the pipeline (document.result is now None, so validate_document won't short-circuit)
     return validate_document(doc_id, user_id)
@@ -149,11 +147,16 @@ def get_result(doc_id, user_id):
     return document.result.to_dict()
 
 
-def get_validation_history(user_id, page=1, per_page=10):
-    """Get paginated validation history for a user."""
-    pagination = Result.query \
+def get_validation_history(user_id, page=1, per_page=10, verdict_filter=None):
+    """Get paginated validation history for a user, with optional verdict filter."""
+    query = Result.query \
         .join(Document) \
-        .filter(Document.user_id == user_id) \
+        .filter(Document.user_id == user_id)
+
+    if verdict_filter:
+        query = query.filter(Result.verdict == verdict_filter)
+
+    pagination = query \
         .order_by(Result.validated_at.desc()) \
         .paginate(page=page, per_page=per_page, error_out=False)
 

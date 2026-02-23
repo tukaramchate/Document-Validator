@@ -67,7 +67,9 @@ def validate_file_content(file_storage, extension):
     """
     signatures = FILE_SIGNATURES.get(extension.lower(), [])
     if not signatures:
-        return False
+        # No signature registered for this extension — skip magic byte check.
+        # The extension whitelist in ALLOWED_EXTENSIONS is the primary gate.
+        return True
 
     # Read enough bytes to check the signature
     max_sig_len = max(len(sig) for sig in signatures)

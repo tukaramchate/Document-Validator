@@ -26,7 +26,10 @@ def token_required(f):
                 current_app.config['JWT_SECRET_KEY'],
                 algorithms=['HS256']
             )
-            current_user = db.session.get(User, payload['user_id'])
+            user_id = payload.get('user_id')
+            if not user_id:
+                return error_response('Token payload is invalid', 'AUTH_ERROR', 401)
+            current_user = db.session.get(User, user_id)
             if current_user is None:
                 return error_response('User not found', 'AUTH_ERROR', 401)
         except jwt.ExpiredSignatureError:
@@ -34,5 +37,15 @@ def token_required(f):
         except jwt.InvalidTokenError:
             return error_response('Token is invalid', 'AUTH_ERROR', 401)
 
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+
+def admin_required(f):
+    """Decorator to require admin role. Must be used with @token_required applied first."""
+    @wraps(f)
+    def decorated(current_user, *args, **kwargs):
+        if not current_user or current_user.role != 'admin':
+            return error_response('Admin access required', 'FORBIDDEN', 403)
         return f(current_user, *args, **kwargs)
     return decorated

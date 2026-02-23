@@ -38,11 +38,8 @@ def upload_file(current_user):
 @token_required
 def list_files(current_user):
     """List current user's uploaded documents with pagination."""
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
-
-    # Clamp per_page
-    per_page = min(per_page, 50)
+    page = max(1, request.args.get('page', 1, type=int))
+    per_page = max(1, min(request.args.get('per_page', 10, type=int), 50))
 
     try:
         documents, total = get_user_documents(current_user.id, page, per_page)

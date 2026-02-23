@@ -15,26 +15,30 @@ def register_user(email, password, name):
     if not email or not password or not name:
         raise ValueError('Email, password, and name are required')
 
+    # Normalize inputs early so all checks use the canonical form
+    email = email.strip().lower()
+    name = name.strip()
+
     # Validate email format
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if not re.match(email_pattern, email.strip()):
+    if not re.match(email_pattern, email):
         raise ValueError('Invalid email format')
 
     if len(password) < 6:
         raise ValueError('Password must be at least 6 characters')
 
-    if len(name.strip()) < 2:
+    if len(name) < 2:
         raise ValueError('Name must be at least 2 characters')
 
     # Check if email already exists
-    existing_user = User.query.filter_by(email=email.lower()).first()
+    existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         raise ValueError('DUPLICATE_EMAIL')
 
     # Create new user
     user = User(
-        email=email.lower().strip(),
-        name=name.strip()
+        email=email,
+        name=name
     )
     user.set_password(password)
 

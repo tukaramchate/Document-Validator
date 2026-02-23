@@ -1,5 +1,6 @@
 import logging
 from flask import Blueprint, request
+from app import limiter
 from services.validation_service import validate_document, get_result, get_validation_history, revalidate_document
 from middleware.auth_middleware import token_required
 from utils.response_utils import success_response, error_response, paginated_response
@@ -11,6 +12,7 @@ validation_bp = Blueprint('validation', __name__)
 
 @validation_bp.route('/validate/<int:doc_id>', methods=['POST'])
 @token_required
+@limiter.limit('10 per minute')
 def validate(current_user, doc_id):
     """Run AI validation pipeline on a document."""
     try:
@@ -69,18 +71,30 @@ def results(current_user, doc_id):
         if msg == 'NOT_VALIDATED':
             return error_response('Document has not been validated yet', 'NOT_VALIDATED', 404)
         return error_response(msg, 'ERROR', 400)
+    except Exception as e:
+        logger.error(f'Get result error: {e}', exc_info=True)
+        return error_response('Failed to retrieve result', 'INTERNAL_ERROR', 500)
 
 
 @validation_bp.route('/history', methods=['GET'])
 @token_required
 def history(current_user):
     """Get paginated validation history for the current user."""
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
-    per_page = min(per_page, 50)
+    page = max(1, request.args.get('page', 1, type=int))
+    per_page = max(1, min(request.args.get('per_page', 10, type=int), 50))
+
+    # Optional verdict filter: AUTHENTIC, SUSPICIOUS, FAKE
+    verdict_filter = request.args.get('verdict', None)
+    if verdict_filter:
+        verdict_filter = verdict_filter.upper()
+        if verdict_filter not in ('AUTHENTIC', 'SUSPICIOUS', 'FAKE'):
+            return error_response(
+                'Invalid verdict filter. Must be AUTHENTIC, SUSPICIOUS, or FAKE.',
+                'VALIDATION_ERROR', 400
+            )
 
     try:
-        results, total = get_validation_history(current_user.id, page, per_page)
+        results, total = get_validation_history(current_user.id, page, per_page, verdict_filter)
         return paginated_response(results, total, page, per_page, 'results')
     except Exception as e:
         logger.error(f'History error: {e}', exc_info=True)

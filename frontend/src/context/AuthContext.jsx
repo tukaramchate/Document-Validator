@@ -5,7 +5,8 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    // Use a lazy initializer to avoid stale synchronous reads of expired tokens
+    const [token, setToken] = useState(() => localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -21,6 +22,7 @@ export function AuthProvider({ children }) {
             const response = await api.get('/auth/profile');
             setUser(response.data.data.user);
         } catch (error) {
+            // Token is invalid or expired — clear all auth state atomically
             localStorage.removeItem('token');
             setToken(null);
             setUser(null);

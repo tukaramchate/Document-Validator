@@ -1,5 +1,6 @@
 import logging
 from flask import Blueprint, request
+from app import limiter
 from services.auth_service import register_user, login_user, change_password
 from middleware.auth_middleware import token_required
 from utils.response_utils import success_response, error_response
@@ -10,6 +11,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit('10 per minute')
 def register():
     """Register a new user."""
     data = request.get_json()
@@ -38,6 +40,7 @@ def register():
 
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit('5 per minute')
 def login():
     """Authenticate user and return token."""
     data = request.get_json()
