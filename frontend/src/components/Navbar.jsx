@@ -11,7 +11,8 @@ import {
     X,
     Sun,
     Moon,
-    ShieldCheck
+    ShieldCheck,
+    Database
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -27,9 +28,15 @@ export default function Navbar() {
     };
 
     const navLinks = [
-        { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { path: '/upload', label: 'Upload', icon: UploadIcon },
-        { path: '/history', label: 'History', icon: HistoryIcon },
+        {
+            path: '/dashboard',
+            label: user?.role === 'admin' ? 'Admin Panel' : user?.role === 'institution' ? 'Institution Portal' : 'Dashboard',
+            icon: LayoutDashboard,
+            condition: true
+        },
+        { path: '/upload', label: 'Upload', icon: UploadIcon, condition: user?.role === 'user' },
+        { path: '/history', label: 'History', icon: HistoryIcon, condition: user?.role === 'user' },
+        { path: '/institution/records', label: 'Manage Records', icon: Database, condition: user?.role === 'institution' },
     ];
 
     const isActive = (path) => location.pathname === path;
@@ -39,30 +46,32 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link to="/dashboard" className="flex items-center gap-2.5 group" aria-label="DocValidator Home">
+                    <Link to="/dashboard" className="flex items-center gap-2.5 group" aria-label="EduVerify AI Home">
                         <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all duration-300">
                             <ShieldCheck className="text-white w-5 h-5" />
                         </div>
                         <span className="text-lg font-bold bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent hidden sm:block">
-                            DocValidator
+                            EduVerify AI
                         </span>
                     </Link>
 
                     {/* Desktop Navigation Links */}
                     <div className="hidden md:flex items-center gap-1">
-                        {navLinks.map(({ path, label, icon: Icon }) => (
-                            <Link
-                                key={path}
-                                to={path}
-                                aria-current={isActive(path) ? 'page' : undefined}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${isActive(path)
-                                    ? 'bg-brand-600/15 text-brand-400 border border-brand-500/20'
-                                    : 'text-surface-400 hover:text-surface-200 hover:bg-surface-800/50'
-                                    }`}
-                            >
-                                <Icon size={18} />
-                                <span>{label}</span>
-                            </Link>
+                        {navLinks.map(({ path, label, icon: Icon, condition }) => (
+                            condition && (
+                                <Link
+                                    key={path}
+                                    to={path}
+                                    aria-current={isActive(path) ? 'page' : undefined}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${isActive(path)
+                                        ? 'bg-brand-600/15 text-brand-400 border border-brand-500/20'
+                                        : 'text-surface-400 hover:text-surface-200 hover:bg-surface-800/50'
+                                        }`}
+                                >
+                                    <Icon size={18} />
+                                    <span>{label}</span>
+                                </Link>
+                            )
                         ))}
                     </div>
 

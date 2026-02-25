@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Upload from './pages/Upload/Upload';
 import Results from './pages/Results/Results';
 import History from './pages/History/History';
+import InstitutionRecords from './pages/Institution/InstitutionRecords';
+import AdminRegister from './pages/AdminRegister/AdminRegister';
 
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -22,6 +24,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/admin/signup" element={<AdminRegister />} />
 
             {/* Protected Routes */}
             <Route element={
@@ -30,9 +33,22 @@ function App() {
               </ProtectedRoute>
             }>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/upload" element={<Upload />} />
+              <Route path="/upload" element={
+                <ProtectedRoute allowedRoles={['user', 'admin']}>
+                  <Upload />
+                </ProtectedRoute>
+              } />
               <Route path="/results/:docId" element={<Results />} />
-              <Route path="/history" element={<History />} />
+              <Route path="/history" element={
+                <ProtectedRoute allowedRoles={['user', 'admin']}>
+                  <History />
+                </ProtectedRoute>
+              } />
+              <Route path="/institution/records" element={
+                <ProtectedRoute allowedRoles={['institution', 'admin']}>
+                  <InstitutionRecords />
+                </ProtectedRoute>
+              } />
             </Route>
 
             {/* Fallback */}

@@ -44,8 +44,8 @@ export default function Login() {
                     <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl shadow-lg shadow-brand-500/25 mb-4">
                         <ShieldCheck className="text-white" size={28} />
                     </div>
-                    <h1 className="text-2xl font-bold text-surface-100">Welcome back</h1>
-                    <p className="text-surface-400 mt-1">Sign in to DocValidator</p>
+                    <h1 className="text-2xl font-bold text-surface-100">EduVerify AI</h1>
+                    <p className="text-surface-400 mt-1">Sign in to EduVerify AI</p>
                 </div>
 
                 {/* Form */}

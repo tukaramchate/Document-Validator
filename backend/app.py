@@ -53,10 +53,14 @@ def create_app(config_name='default'):
     from blueprints.auth import auth_bp
     from blueprints.upload import upload_bp
     from blueprints.validation import validation_bp
+    from blueprints.institution import institution_bp
+    from blueprints.admin_stats import admin_stats_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(upload_bp, url_prefix='/api')
     app.register_blueprint(validation_bp, url_prefix='/api')
+    app.register_blueprint(institution_bp, url_prefix='/api/institution')
+    app.register_blueprint(admin_stats_bp, url_prefix='/api/admin')
 
     # Register global error handlers
     register_error_handlers(app)

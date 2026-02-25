@@ -13,30 +13,50 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/register', methods=['POST'])
 @limiter.limit('10 per minute')
 def register():
-    """Register a new user."""
+    """Register a new user (default: user role)."""
+    return _handle_registration('user')
+
+
+@auth_bp.route('/register/institution', methods=['POST'])
+@limiter.limit('10 per minute')
+def register_institution():
+    """Register a new institution."""
+    return _handle_registration('institution')
+
+
+@auth_bp.route('/register/admin', methods=['POST'])
+@limiter.limit('10 per minute')
+def register_admin():
+    """Register a new admin."""
+    # In a real system, this would be restricted, but for this dev stage
+    # we allow direct admin registration.
+    return _handle_registration('admin')
+
+
+def _handle_registration(role):
     data = request.get_json()
     if not data:
         return error_response('Request body is required', 'BAD_REQUEST', 400)
 
+    email = data.get('email')
+    password = data.get('password')
+    name = data.get('name')
+
     try:
-        user, token = register_user(
-            email=data.get('email'),
-            password=data.get('password'),
-            name=data.get('name')
-        )
+        user, token = register_user(email, password, name, role=role)
         return success_response(
+            message=f'{role.capitalize()} registered successfully',
             data={'user': user, 'token': token},
-            message='Registration successful',
             status_code=201
         )
     except ValueError as e:
         msg = str(e)
         if msg == 'DUPLICATE_EMAIL':
-            return error_response('Email already registered', 'CONFLICT', 409)
+            return error_response('Email already exists', 'VALIDATION_ERROR', 400)
         return error_response(msg, 'VALIDATION_ERROR', 400)
     except Exception as e:
         logger.error(f'Registration error: {e}', exc_info=True)
-        return error_response('Registration failed', 'INTERNAL_ERROR', 500)
+        return error_response('Failed to register', 'INTERNAL_ERROR', 500)
 
 
 @auth_bp.route('/login', methods=['POST'])

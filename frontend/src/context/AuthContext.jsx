@@ -49,6 +49,24 @@ export function AuthProvider({ children }) {
         return userData;
     };
 
+    const registerInstitution = async (email, password, name) => {
+        const response = await api.post('/auth/register/institution', { email, password, name });
+        const { user: userData, token: newToken } = response.data.data;
+        localStorage.setItem('token', newToken);
+        setToken(newToken);
+        setUser(userData);
+        return userData;
+    };
+
+    const registerAdmin = async (email, password, name) => {
+        const response = await api.post('/auth/register/admin', { email, password, name });
+        const { user: userData, token: newToken } = response.data.data;
+        localStorage.setItem('token', newToken);
+        setToken(newToken);
+        setUser(userData);
+        return userData;
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         setToken(null);
@@ -56,7 +74,17 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{
+            user,
+            token,
+            loading,
+            login,
+            register,
+            registerInstitution,
+            registerAdmin,
+            logout,
+            isAuthenticated: !!user
+        }}>
             {children}
         </AuthContext.Provider>
     );

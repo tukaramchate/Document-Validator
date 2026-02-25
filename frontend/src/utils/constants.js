@@ -12,6 +12,11 @@ export const API_ROUTES = {
     VALIDATE: (docId) => `/validate/${docId}`,
     RESULTS: (docId) => `/results/${docId}`,
     HISTORY: '/history',
+    INSTITUTION: {
+        RECORDS: '/institution/records',
+        BULK_UPLOAD: '/institution/records/bulk',
+    },
+    REPORT: (docId) => `/results/${docId}/report`,
 };
 
 // ─── File Validation ───

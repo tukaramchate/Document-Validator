@@ -18,8 +18,10 @@ import {
     Share2,
     Calendar,
     Settings,
-    Layout
+    Layout,
+    Download
 } from 'lucide-react';
+import { API_ROUTES } from '../../utils/constants';
 
 export default function Results() {
     const { docId } = useParams();
@@ -104,9 +106,12 @@ export default function Results() {
                     </div>
                 </div>
                 <div className="flex gap-3">
-                    <button className="btn-secondary rounded-xl flex items-center gap-2">
-                        <Share2 size={18} />
-                        <span className="hidden sm:inline">Share</span>
+                    <button
+                        className="btn-secondary rounded-xl flex items-center gap-2"
+                        onClick={() => window.open(`${import.meta.env.VITE_API_URL}${API_ROUTES.REPORT(docId)}?token=${localStorage.getItem('token')}`)}
+                    >
+                        <Download size={18} />
+                        <span className="hidden sm:inline">Download Report</span>
                     </button>
                     <Link to="/upload" className="btn-primary rounded-xl px-6">Upload Another</Link>
                 </div>

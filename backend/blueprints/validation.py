@@ -1,7 +1,9 @@
+import os
 import logging
-from flask import Blueprint, request
+from flask import Blueprint, request, send_file
 from app import limiter
 from services.validation_service import validate_document, get_result, get_validation_history, revalidate_document
+from services.report_service import generate_validation_report
 from middleware.auth_middleware import token_required
 from utils.response_utils import success_response, error_response, paginated_response
 
@@ -27,6 +29,8 @@ def validate(current_user, doc_id):
             return error_response('Document not found', 'NOT_FOUND', 404)
         if msg == 'FORBIDDEN':
             return error_response('Access denied', 'FORBIDDEN', 403)
+        if msg == 'USAGE_LIMIT_REACHED':
+            return error_response('Validation limit reached (10 max). Please upgrade to paid.', 'USAGE_LIMIT_REACHED', 403)
         return error_response(msg, 'ERROR', 400)
     except Exception as e:
         logger.error(f'Validation error: {e}', exc_info=True)
@@ -99,3 +103,35 @@ def history(current_user):
     except Exception as e:
         logger.error(f'History error: {e}', exc_info=True)
         return error_response('Failed to retrieve history', 'INTERNAL_ERROR', 500)
+
+@validation_bp.route('/results/<int:doc_id>/report', methods=['GET'])
+@token_required
+def download_report(current_user, doc_id):
+    """Download the validation report as a PDF."""
+    try:
+        from models import db
+        from models.document import Document
+        document = db.session.get(Document, doc_id)
+        if not document:
+             return error_response('Document not found', 'NOT_FOUND', 404)
+        if document.user_id != current_user.id:
+             return error_response('Access denied', 'FORBIDDEN', 403)
+        if not document.result:
+             return error_response('Document not validated yet', 'NOT_VALIDATED', 400)
+
+        # Generate report to a temporary path
+        import tempfile
+        temp_dir = tempfile.gettempdir()
+        report_path = os.path.join(temp_dir, f"report_{doc_id}.pdf")
+        
+        generate_validation_report(document, document.result, report_path)
+
+        return send_file(
+            report_path,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"Validation_Report_{document.filename}.pdf"
+        )
+    except Exception as e:
+        logger.error(f'Report download error: {e}', exc_info=True)
+        return error_response('Failed to generate report', 'INTERNAL_ERROR', 500)

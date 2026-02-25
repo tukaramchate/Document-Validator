@@ -49,3 +49,13 @@ def admin_required(f):
             return error_response('Admin access required', 'FORBIDDEN', 403)
         return f(current_user, *args, **kwargs)
     return decorated
+
+
+def institution_required(f):
+    """Decorator to require institution role. Must be used with @token_required applied first."""
+    @wraps(f)
+    def decorated(current_user, *args, **kwargs):
+        if not current_user or current_user.role not in ('admin', 'institution'):
+            return error_response('Institution access required', 'FORBIDDEN', 403)
+        return f(current_user, *args, **kwargs)
+    return decorated

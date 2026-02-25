@@ -9,11 +9,15 @@ from models.user import User
 logger = logging.getLogger(__name__)
 
 
-def register_user(email, password, name):
+def register_user(email, password, name, role='user'):
     """Register a new user and return user dict + JWT token."""
     # Validate required fields first (prevents TypeError on None)
     if not email or not password or not name:
         raise ValueError('Email, password, and name are required')
+
+    # Validate role
+    if role not in ('admin', 'institution', 'user'):
+        raise ValueError('Invalid role')
 
     # Normalize inputs early so all checks use the canonical form
     email = email.strip().lower()
@@ -38,7 +42,8 @@ def register_user(email, password, name):
     # Create new user
     user = User(
         email=email,
-        name=name
+        name=name,
+        role=role
     )
     user.set_password(password)
 

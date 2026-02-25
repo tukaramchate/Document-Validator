@@ -92,7 +92,7 @@ export default function Landing() {
                             <ShieldCheck className="text-white w-5 h-5" />
                         </div>
                         <span className="text-lg font-bold bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent">
-                            DocValidator
+                            EduVerify AI
                         </span>
                     </Link>
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -121,15 +121,15 @@ export default function Landing() {
                     </div>
 
                     <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-surface-100 leading-[1.1] tracking-tight animate-fade-in">
-                        Verify Document
+                        Truth at the Core
                         <br />
                         <span className="bg-gradient-to-r from-brand-400 via-brand-300 to-brand-500 bg-clip-text text-transparent">
-                            Authenticity Instantly
+                            of Technology
                         </span>
                     </h1>
 
                     <p className="mt-8 text-lg sm:text-xl text-surface-400 max-w-2xl mx-auto leading-relaxed animate-fade-in font-medium">
-                        Upload any document and get an AI-powered authenticity verdict in seconds. Our system combines deep learning, OCR, and database verification for accurate results.
+                        EduVerify AI provides instant, AI-powered document verification for academic and professional credentials. Fast, secure, and built for maximum integrity.
                     </p>
 
                     <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in">
@@ -240,10 +240,10 @@ export default function Landing() {
                             <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-md">
                                 <ShieldCheck className="text-white w-4.5 h-4.5" />
                             </div>
-                            <span className="font-bold text-surface-200">DocValidator</span>
+                            <span className="font-bold text-surface-200">EduVerify AI</span>
                         </div>
                         <div className="text-xs text-surface-500 font-medium tracking-wide">
-                            © {new Date().getFullYear()} DocValidator. Built for maximum trust.
+                            © {new Date().getFullYear()} EduVerify AI. Built for maximum trust.
                         </div>
                     </div>
                 </footer>
