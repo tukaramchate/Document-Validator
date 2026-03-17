@@ -86,7 +86,7 @@ export default function Upload() {
         e.stopPropagation();
         setDragActive(false);
         handleFileSelect(e.dataTransfer.files[0]);
-    }, []);
+    }, [handleFileSelect]);
 
     const handleFileInput = (e) => {
         handleFileSelect(e.target.files[0]);

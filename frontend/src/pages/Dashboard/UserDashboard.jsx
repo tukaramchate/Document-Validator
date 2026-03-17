@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import { VERDICT_CONFIG } from '../../utils/constants';
-import LoadingSpinner from '../../components/LoadingSpinner';
+import { Skeleton, StatCardSkeleton, TableRowSkeleton } from '../../components/Skeleton';
 import AlertMessage from '../../components/AlertMessage';
 import {
     Files,
@@ -78,8 +78,37 @@ export default function UserDashboard() {
         return VERDICT_CONFIG[verdict]?.badge || 'badge';
     };
 
-    if (loading) return <LoadingSpinner />;
     if (error) return <AlertMessage type="error" message={error} />;
+
+    if (loading) {
+        return (
+            <div className="space-y-8 animate-fade-in">
+                {/* Header Skeleton */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                    <div>
+                        <Skeleton className="h-10 w-64 mb-2" />
+                        <Skeleton className="h-5 w-80" />
+                    </div>
+                    <Skeleton className="h-12 w-48 rounded-xl" />
+                </div>
+
+                {/* Stats Grid Skeleton */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {[1, 2, 3, 4, 5].map(i => <StatCardSkeleton key={i} />)}
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                    {/* Recent Uploads Skeleton */}
+                    <div className="md:col-span-2 space-y-6">
+                        <Skeleton className="h-8 w-40 mb-4" />
+                        <div className="card rounded-[2rem] p-6 lg:p-8">
+                            {[1, 2, 3].map(i => <TableRowSkeleton key={i} />)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-fade-in">

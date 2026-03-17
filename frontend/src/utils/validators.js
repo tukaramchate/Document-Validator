@@ -34,12 +34,15 @@ export function validateFile(file) {
 }
 
 /**
- * Basic email format validation.
+ * Email format validation with stricter rules.
+ * Validates: proper domain structure, minimum TLD length, no consecutive dots.
  * @param {string} email
  * @returns {boolean}
  */
 export function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    // More robust email regex matching RFC 5322 standards
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    return emailRegex.test(email) && !email.includes('..');
 }
 
 /**

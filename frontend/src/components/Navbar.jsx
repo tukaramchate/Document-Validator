@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     LayoutDashboard,
     Upload as UploadIcon,
@@ -12,7 +12,11 @@ import {
     Sun,
     Moon,
     ShieldCheck,
-    Database
+    Database,
+    User,
+    Settings,
+    HelpCircle,
+    ChevronDown
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -21,6 +25,27 @@ export default function Navbar() {
     const location = useLocation();
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const userMenuRef = useRef(null);
+
+    // Close user dropdown on outside click
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+                setUserMenuOpen(false);
+            }
+        }
+        if (userMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [userMenuOpen]);
+
+    // Close mobile menu on route change
+    useEffect(() => {
+        setMobileMenuOpen(false);
+        setUserMenuOpen(false);
+    }, [location.pathname]);
 
     const handleLogout = () => {
         logout();
@@ -39,6 +64,12 @@ export default function Navbar() {
         { path: '/institution/records', label: 'Manage Records', icon: Database, condition: user?.role === 'institution' },
     ];
 
+    const userMenuItems = [
+        { path: '/profile', label: 'Profile', icon: User },
+        { path: '/settings', label: 'Settings', icon: Settings },
+        { path: '/help', label: 'Help & Support', icon: HelpCircle },
+    ];
+
     const isActive = (path) => location.pathname === path;
 
     return (
@@ -46,12 +77,12 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link to="/dashboard" className="flex items-center gap-2.5 group" aria-label="EduVerify AI Home">
+                    <Link to="/dashboard" className="flex items-center gap-2.5 group" aria-label="VeriAcd Home">
                         <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all duration-300">
                             <ShieldCheck className="text-white w-5 h-5" />
                         </div>
                         <span className="text-lg font-bold bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent hidden sm:block">
-                            EduVerify AI
+                            VeriAcd
                         </span>
                     </Link>
 
@@ -75,8 +106,8 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    {/* Right Side: Theme Toggle + User + Logout */}
-                    <div className="flex items-center gap-2 sm:gap-4">
+                    {/* Right Side: Theme Toggle + User Menu */}
+                    <div className="flex items-center gap-2 sm:gap-3">
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
@@ -86,21 +117,63 @@ export default function Navbar() {
                             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
 
-                        {/* User Info */}
-                        <div className="hidden lg:flex flex-col items-end mr-1">
-                            <span className="text-sm font-semibold text-surface-100">{user?.name}</span>
-                            <span className="text-[10px] uppercase tracking-wider text-surface-500 font-bold">{user?.email}</span>
-                        </div>
+                        {/* User Menu */}
+                        <div className="hidden md:block relative" ref={userMenuRef}>
+                            <button
+                                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-800/50 text-surface-200 hover:bg-surface-700/50 border border-surface-700/50 transition-all"
+                                aria-label="User menu"
+                                aria-expanded={userMenuOpen}
+                            >
+                                <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                                    {user?.name?.charAt(0).toUpperCase()}
+                                </div>
+                                <span className="text-sm font-medium hidden lg:block">{user?.name}</span>
+                                <ChevronDown size={16} className={`text-surface-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                            </button>
 
-                        {/* Logout */}
-                        <button
-                            onClick={handleLogout}
-                            className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-surface-400 hover:text-danger-400 hover:bg-danger-500/10 border border-transparent hover:border-danger-500/20 rounded-xl transition-all duration-200"
-                            aria-label="Logout"
-                        >
-                            <LogOut size={18} />
-                            <span className="hidden lg:inline">Sign Out</span>
-                        </button>
+                            {/* User Dropdown */}
+                            {userMenuOpen && (
+                                <div className="absolute right-0 mt-2 w-56 bg-surface-900 border border-surface-800/50 rounded-xl shadow-xl overflow-hidden animate-fade-in">
+                                    {/* User Info */}
+                                    <div className="px-4 py-3 border-b border-surface-800/50">
+                                        <p className="text-sm font-bold text-surface-100">{user?.name}</p>
+                                        <p className="text-xs text-surface-500 mt-1">{user?.email}</p>
+                                        <span className="inline-block mt-2 px-2 py-1 text-xs font-semibold bg-brand-500/20 text-brand-400 rounded-lg">
+                                            {user?.role === 'user' ? 'User' : user?.role === 'institution' ? 'Institution' : 'Admin'}
+                                        </span>
+                                    </div>
+
+                                    {/* Menu Items */}
+                                    {userMenuItems.map(({ path, label, icon: Icon }) => (
+                                        <Link
+                                            key={path}
+                                            to={path}
+                                            onClick={() => setUserMenuOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-sm text-surface-400 hover:text-surface-100 hover:bg-surface-800/50 transition-colors"
+                                        >
+                                            <Icon size={18} />
+                                            <span>{label}</span>
+                                        </Link>
+                                    ))}
+
+                                    {/* Divider */}
+                                    <div className="border-t border-surface-800/50" />
+
+                                    {/* Logout */}
+                                    <button
+                                        onClick={() => {
+                                            setUserMenuOpen(false);
+                                            handleLogout();
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-danger-400 hover:text-danger-300 hover:bg-danger-500/10 transition-colors"
+                                    >
+                                        <LogOut size={18} />
+                                        <span>Sign Out</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
 
                         {/* Mobile Hamburger */}
                         <button
@@ -119,34 +192,51 @@ export default function Navbar() {
             {mobileMenuOpen && (
                 <div className="md:hidden border-t border-surface-800/50 animate-fade-in bg-surface-950/80 backdrop-blur-xl">
                     <div className="px-4 py-4 space-y-2">
-                        {navLinks.map(({ path, label, icon: Icon }) => (
-                            <Link
-                                key={path}
-                                to={path}
-                                onClick={() => setMobileMenuOpen(false)}
-                                aria-current={isActive(path) ? 'page' : undefined}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive(path)
-                                    ? 'bg-brand-600/15 text-brand-400 border border-brand-500/20'
-                                    : 'text-surface-400 hover:text-surface-200 hover:bg-surface-800/50'
-                                    }`}
-                            >
-                                <Icon size={20} />
-                                <span>{label}</span>
-                            </Link>
+                        {navLinks.map(({ path, label, icon: Icon, condition }) => (
+                            condition && (
+                                <Link
+                                    key={path}
+                                    to={path}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    aria-current={isActive(path) ? 'page' : undefined}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive(path)
+                                        ? 'bg-brand-600/15 text-brand-400 border border-brand-500/20'
+                                        : 'text-surface-400 hover:text-surface-200 hover:bg-surface-800/50'
+                                        }`}
+                                >
+                                    <Icon size={20} />
+                                    <span>{label}</span>
+                                </Link>
+                            )
                         ))}
 
                         <div className="border-t border-surface-800/50 pt-4 mt-2">
-                            <div className="px-4 py-2 mb-2">
+                            <div className="px-4 py-2 mb-3">
                                 <p className="text-sm font-bold text-surface-100">{user?.name}</p>
-                                <p className="text-xs text-surface-500">{user?.email}</p>
+                                <p className="text-xs text-surface-500 mt-1">{user?.email}</p>
                             </div>
+
+                            {userMenuItems.map(({ path, label, icon: Icon }) => (
+                                <Link
+                                    key={path}
+                                    to={path}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3 text-sm text-surface-400 hover:text-surface-100 hover:bg-surface-800/50 rounded-xl transition-colors"
+                                >
+                                    <Icon size={18} />
+                                    <span>{label}</span>
+                                </Link>
+                            ))}
+
                             <button
-                                onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-danger-400 hover:bg-danger-500/10 rounded-xl transition-all"
-                                aria-label="Logout"
+                                onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    handleLogout();
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-danger-400 hover:bg-danger-500/10 rounded-xl transition-all mt-2"
                             >
-                                <LogOut size={20} />
-                                <span>Logout</span>
+                                <LogOut size={18} />
+                                <span>Sign Out</span>
                             </button>
                         </div>
                     </div>

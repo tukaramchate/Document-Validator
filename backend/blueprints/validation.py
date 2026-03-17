@@ -109,6 +109,7 @@ def history(current_user):
 def download_report(current_user, doc_id):
     """Download the validation report as a PDF."""
     try:
+        import io
         from models import db
         from models.document import Document
         document = db.session.get(Document, doc_id)
@@ -119,15 +120,13 @@ def download_report(current_user, doc_id):
         if not document.result:
              return error_response('Document not validated yet', 'NOT_VALIDATED', 400)
 
-        # Generate report to a temporary path
-        import tempfile
-        temp_dir = tempfile.gettempdir()
-        report_path = os.path.join(temp_dir, f"report_{doc_id}.pdf")
-        
-        generate_validation_report(document, document.result, report_path)
+        # Generate report into in-memory buffer (H6 fix: avoids file race condition)
+        buffer = io.BytesIO()
+        generate_validation_report(document, document.result, buffer)
+        buffer.seek(0)
 
         return send_file(
-            report_path,
+            buffer,
             mimetype='application/pdf',
             as_attachment=True,
             download_name=f"Validation_Report_{document.filename}.pdf"

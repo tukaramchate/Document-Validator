@@ -1,6 +1,5 @@
 import logging
 from flask import Blueprint, request
-from app import limiter
 from middleware.auth_middleware import token_required, institution_required
 from models import db
 from models.institution_record import InstitutionRecord
@@ -16,6 +15,9 @@ logger = logging.getLogger(__name__)
 def add_record(current_user):
     """Add a new verification record (e.g. Student/Employee)."""
     data = request.get_json()
+    if not data:
+        return error_response('Request body is required', 'BAD_REQUEST', 400)
+
     name = data.get('name')
     id_number = data.get('id_number')
     metadata_fields = data.get('metadata', {})
@@ -32,8 +34,9 @@ def add_record(current_user):
         )
         db.session.add(record)
         db.session.commit()
-        return success_response('Record added successfully', data={'record': record.to_dict()}, status_code=201)
+        return success_response(message='Record added successfully', data={'record': record.to_dict()}, status_code=201)
     except Exception as e:
+        db.session.rollback()
         logger.error(f'Add record error: {e}', exc_info=True)
         return error_response('Failed to add record', 'INTERNAL_ERROR', 500)
 
@@ -44,10 +47,28 @@ def add_record(current_user):
 def bulk_add_records(current_user):
     """Bulk add verification records."""
     data = request.get_json()
+    if not data:
+        return error_response('Request body is required', 'BAD_REQUEST', 400)
+
     records_data = data.get('records', [])
 
     if not records_data:
         return error_response('No records provided', 'VALIDATION_ERROR', 400)
+
+    MAX_BULK_RECORDS = 500
+    if len(records_data) > MAX_BULK_RECORDS:
+        return error_response(
+            f'Too many records. Maximum {MAX_BULK_RECORDS} per request.',
+            'VALIDATION_ERROR', 400
+        )
+
+    # Validate all records before inserting
+    for i, item in enumerate(records_data):
+        if not item.get('name') or not item.get('id_number'):
+            return error_response(
+                f'Record at index {i} is missing name or id_number',
+                'VALIDATION_ERROR', 400
+            )
 
     try:
         new_records = []
@@ -60,10 +81,11 @@ def bulk_add_records(current_user):
             )
             db.session.add(record)
             new_records.append(record)
-        
+
         db.session.commit()
-        return success_response(f'{len(new_records)} records added successfully', status_code=201)
+        return success_response(message=f'{len(new_records)} records added successfully', status_code=201)
     except Exception as e:
+        db.session.rollback()
         logger.error(f'Bulk add records error: {e}', exc_info=True)
         return error_response('Failed to bulk add records', 'INTERNAL_ERROR', 500)
 
@@ -95,7 +117,6 @@ def get_institution_stats(current_user):
     """Get statistics for the current institution dashboard."""
     try:
         from models.result import Result
-        import json
 
         total_records = InstitutionRecord.query.filter_by(institution_id=current_user.id).count()
         

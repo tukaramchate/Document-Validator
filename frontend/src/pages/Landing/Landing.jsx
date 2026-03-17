@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Footer from '../../components/Footer';
 import {
     ShieldCheck,
     Zap,
@@ -92,7 +93,7 @@ export default function Landing() {
                             <ShieldCheck className="text-white w-5 h-5" />
                         </div>
                         <span className="text-lg font-bold bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent">
-                            EduVerify AI
+                            VeriAcd
                         </span>
                     </Link>
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -129,7 +130,7 @@ export default function Landing() {
                     </h1>
 
                     <p className="mt-8 text-lg sm:text-xl text-surface-400 max-w-2xl mx-auto leading-relaxed animate-fade-in font-medium">
-                        EduVerify AI provides instant, AI-powered document verification for academic and professional credentials. Fast, secure, and built for maximum integrity.
+                        VeriAcd provides instant, AI-powered document verification for academic and professional credentials. Fast, secure, and built for maximum integrity.
                     </p>
 
                     <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in">
@@ -233,20 +234,7 @@ export default function Landing() {
                     </div>
                 </section>
 
-                {/* ─── Footer ─── */}
-                <footer className="border-t border-surface-800/20 mt-12 bg-surface-950/50 backdrop-blur-sm">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-md">
-                                <ShieldCheck className="text-white w-4.5 h-4.5" />
-                            </div>
-                            <span className="font-bold text-surface-200">EduVerify AI</span>
-                        </div>
-                        <div className="text-xs text-surface-500 font-medium tracking-wide">
-                            © {new Date().getFullYear()} EduVerify AI. Built for maximum trust.
-                        </div>
-                    </div>
-                </footer>
+                <Footer />
             </div>
         </div>
     );

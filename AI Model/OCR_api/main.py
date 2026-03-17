@@ -80,48 +80,18 @@ Return raw JSON only.
 
 
 # ---------- Core Extraction ----------
-def extract_with_gemini(image_bytes: bytes) -> dict:
-    """Send image to Gemini 1.5 Flash using PIL and return extracted JSON data."""
-    try:
-        img = Image.open(io.BytesIO(image_bytes))
-    except Exception as e:
-        logger.error(f"Cannot open image: {e}")
-        return {"error": f"Invalid image file: {e}"}
+import sys
+import pathlib
+_BASE_DIR = pathlib.Path(__file__).parent.parent
+sys.path.append(str(_BASE_DIR))
+from ocr.text_extractor import extract_text
 
-    model = genai.GenerativeModel("gemini-2.5-flash")
-    logger.info(f"Sending image ({img.size}, {img.mode}) to Gemini...")
-
-    try:
-        response = model.generate_content([EXTRACTION_PROMPT, img])
-    except Exception as e:
-        err_str = str(e)
-        logger.error(f"Gemini API error: {err_str[:200]}")
-        if "429" in err_str or "quota" in err_str.lower():
-            return {
-                "error": "Gemini API quota exceeded. Please enable billing on your Google AI Studio account at https://aistudio.google.com, or wait and try again later."
-            }
-        return {"error": f"Gemini API error: {err_str[:200]}"}
-
-    raw = response.text.strip()
-    logger.info(f"Gemini raw response (first 200 chars): {raw[:200]}")
-
-    # Strip markdown fences if present (Gemini sometimes adds them)
-    if "```" in raw:
-        raw = re.sub(r"```(?:json)?\s*", "", raw).strip()
-        raw = raw.rstrip("`").strip()
-
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError:
-        # Try to find a JSON object anywhere in the response
-        match = re.search(r"\{.*\}", raw, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except json.JSONDecodeError:
-                pass
-        logger.error(f"Failed to parse JSON from Gemini response:\n{raw}")
-        return {"error": "Could not parse AI response. Please try again."}
+def extract_with_gemini(image_path: str) -> dict:
+    """Send image to Gemini 1.5 Flash via text_extractor and return extracted JSON data."""
+    result = extract_text(image_path)
+    if "error" in result["fields"]:
+        return result["fields"] # Pass the error down
+    return result["fields"]
 
 
 # ---------- Health Check ----------
@@ -137,15 +107,27 @@ async def extract_certificate(file: UploadFile = File(...)):
     Upload an image (JPG, PNG, WEBP) of an educational certificate.
     Returns extracted structured data as JSON.
     """
-    if not file.content_type or not file.content_type.startswith("image/"):
+    if not file.content_type or not (file.content_type.startswith("image/") or file.content_type == "application/pdf"):
         raise HTTPException(
             status_code=400,
-            detail=f"Only image files are supported. Received: {file.content_type}",
+            detail=f"Only image and PDF files are supported. Received: {file.content_type}",
         )
 
     image_bytes = await file.read()
     logger.info(f"Received: {file.filename!r} ({file.content_type}, {len(image_bytes)} bytes)")
 
-    result = extract_with_gemini(image_bytes)
+    # Save to tempfile so extract_text (which expects a path) can read it cleanly
+    import tempfile
+    suffix = pathlib.Path(file.filename).suffix if file.filename else ".jpg"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+        temp_file.write(image_bytes)
+        temp_path = temp_file.name
+        
+    try:
+        result = extract_with_gemini(temp_path)
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
     logger.info(f"Returning result keys: {list(result.keys())}")
     return JSONResponse(content=result)

@@ -1,5 +1,4 @@
 import os
-import random
 import logging
 import json
 import google.generativeai as genai
@@ -28,52 +27,9 @@ def get_genai_model():
 # AI Pipeline Implementation
 # ────────────────────────────────────────────────────────────
 
-def mock_cnn_predict(image_path):
-    """[STUB] CNN visual analysis — replace with real model inference once trained."""
-    return round(random.uniform(0.6, 0.95), 4)
-
-
-def extract_data_with_gemini(image_path):
-    """Use Gemini AI to extract text data from document images."""
-    model = get_genai_model()
-    if not model:
-        return {
-            'fields': {'note': 'Gemini API not configured. Contact admin.'},
-            'confidence': 0.0
-        }
-
-    try:
-        # Load image
-        from PIL import Image
-        img = Image.open(image_path)
-
-        prompt = """
-        Analyze this document image and extract the following fields in JSON format:
-        - name
-        - id_number
-        - institution
-        - date
-        
-        If a field is missing, use null. Return ONLY the JSON object.
-        """
-        
-        response = model.generate_content([prompt, img])
-        text = response.text.strip()
-        
-        # Strip markdown code blocks if present
-        if text.startswith('```json'):
-            text = text[7:-3].strip()
-        elif text.startswith('```'):
-            text = text[3:-3].strip()
-            
-        fields = json.loads(text)
-        return {
-            'fields': fields,
-            'confidence': 0.95 # Gemini doesn't return raw per-field confidence easily
-        }
-    except Exception as e:
-        logger.error(f"Gemini extraction error: {e}", exc_info=True)
-        return {'fields': {}, 'confidence': 0.0}
+# ────────────────────────────────────────────────────────────
+# Integration Helper
+# ────────────────────────────────────────────────────────────
 
 
 def verify_against_institution_data(extracted_fields, user_id=None):
@@ -124,16 +80,6 @@ def verify_against_institution_data(extracted_fields, user_id=None):
 # Validation Pipeline
 # ────────────────────────────────────────────────────────────
 
-def calculate_verdict(final_score):
-    """Determine verdict based on final score thresholds."""
-    if final_score >= 0.90:
-        return 'AUTHENTIC'
-    elif final_score >= 0.70:
-        return 'SUSPICIOUS'
-    else:
-        return 'FAKE'
-
-
 def validate_document(doc_id, user_id):
     """Run the full validation pipeline on a document."""
     # Step 1: Verify user and check usage limits
@@ -162,25 +108,48 @@ def validate_document(doc_id, user_id):
     from utils.file_utils import get_upload_path
     image_path = get_upload_path(document.stored_name)
 
-    # Step 4 & 5: CNN Prediction (mock for now)
-    cnn_score = mock_cnn_predict(image_path)
-
-    # Step 6: OCR Extraction with Gemini
-    ocr_result = extract_data_with_gemini(image_path)
-    ocr_confidence = ocr_result['confidence']
-    extracted_data = ocr_result['fields']
+    # Step 4: Run Real Validation Pipeline
+    import sys
+    import pathlib
+    # Add AI Model dir to path
+    _AI_DIR = pathlib.Path(__file__).parent.parent.parent / "AI Model"
+    if str(_AI_DIR) not in sys.path:
+        sys.path.append(str(_AI_DIR))
+        
+    from model import DocumentValidator
+    
+    # We construct the DB record fields expected by the ai matcher if we have ground truth
+    # If the user is an institution, we don't know who the document belongs to yet (they upload many)
+    # If the user is a normal user, we could potentially look up their institution records but the
+    # AI matcher handles the DB matching logic internally.
+    
+    # For now, we will extract text, and then use the previous verify_against_institution_data logic
+    # because the DB schema is tied to SQLAlchemy here in the backend. 
+    # Long term, the AI Model's db_matcher can hit an API endpoint or we pass the dict.
+    # Let's use the DocumentValidator for CNN taking the image, and OCR taking the image.
+    
+    validator = DocumentValidator()
+    validator.load_model()
+    
+    # We call validate without db_record_fields to just get CNN + OCR
+    ai_result = validator.validate(image_path)
+    
+    cnn_score = ai_result["cnn_result"].get("score", 0.0)
+    ocr_confidence = ai_result["ocr_result"].get("confidence", 0.0)
+    extracted_data = ai_result["ocr_result"]["fields"]
 
     # Step 7: Database Cross-Verification against Institution Data
+    # we reuse the backend's specific DB lookup logic for now since it has access to the db models
     db_result = verify_against_institution_data(extracted_data, user_id)
     db_match_score = db_result['score']
     field_matches = db_result['matches']
 
-    # Step 8: Score Combination
-    final_score = round(
-        (cnn_score * 0.4) + (ocr_confidence * 0.2) + (db_match_score * 0.4),
-        4
-    )
-    verdict = calculate_verdict(final_score)
+    # Step 8: Score Combination (Reusing AI Model's calculator)
+    from verification.score_calculator import calculate_final_score
+    final_calc = calculate_final_score(cnn_score, ocr_confidence, db_match_score)
+    
+    final_score = final_calc["final_score"]
+    verdict = final_calc["verdict"]
 
     # Step 9: Save result
     result = Result(
@@ -195,9 +164,12 @@ def validate_document(doc_id, user_id):
     )
     db.session.add(result)
     
-    # Increment usage count for free users
+    # Increment usage count for free users — atomic SQL to prevent race conditions (H1 fix)
     if user.role == 'user':
-        user.validation_count += 1
+        from models.user import User as UserModel
+        db.session.query(UserModel).filter_by(id=user_id).update(
+            {UserModel.validation_count: UserModel.validation_count + 1}
+        )
         
     db.session.commit()
 
@@ -215,6 +187,12 @@ def revalidate_document(doc_id, user_id):
 
     # Delete existing result if present
     if document.result:
+        # Decrement validation_count so re-running validate_document doesn't double-count
+        from models.user import User
+        user = db.session.get(User, user_id)
+        if user and user.role == 'user' and user.validation_count > 0:
+            user.validation_count -= 1
+
         db.session.delete(document.result)
         db.session.flush()  # Flush deletion before expiring
         logger.info(f'Deleted existing result for document {doc_id} for re-validation')

@@ -94,7 +94,7 @@ export default function AdminRegister() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="input-field focus:ring-red-500/20 focus:border-red-500/50"
-                                placeholder="admin@eduverify.ai"
+                                placeholder="admin@veriacd.ai"
                                 required
                                 autoComplete="email"
                             />

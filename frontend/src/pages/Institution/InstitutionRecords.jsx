@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
+import { useToast } from '../../context/ToastContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import AlertMessage from '../../components/AlertMessage';
 import {
     Users,
     Plus,
@@ -16,9 +16,9 @@ import {
 
 export default function InstitutionRecords() {
     const { get, post, del } = useApi();
+    const toast = useToast();
     const [records, setRecords] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const [search, setSearch] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
     const [newRecord, setNewRecord] = useState({ name: '', id_number: '', metadata: {} });
@@ -33,7 +33,7 @@ export default function InstitutionRecords() {
             const response = await get('/institution/records');
             setRecords(response.data.records);
         } catch (err) {
-            setError(err.response?.data?.error?.message || 'Failed to load records');
+            toast.error(err.response?.data?.error?.message || 'Failed to load records');
         } finally {
             setLoading(false);
         }
@@ -58,7 +58,7 @@ export default function InstitutionRecords() {
             fetchRecords();
             setBulkJson('');
         } catch (err) {
-            setError('Invalid JSON format or upload failed');
+            toast.error(err.response?.data?.error?.message || 'Invalid JSON format or upload failed');
         }
     };
 
@@ -87,8 +87,6 @@ export default function InstitutionRecords() {
                     </button>
                 </div>
             </div>
-
-            <AlertMessage type="error" message={error} onClose={() => setError('')} />
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* Sidebar Controls */}
@@ -160,7 +158,20 @@ export default function InstitutionRecords() {
                                                 </span>
                                             ))}
                                         </div>
-                                        <button className="p-2.5 text-surface-600 hover:text-danger-400 transition-colors">
+                                        <button
+                                            className="p-2.5 text-surface-600 hover:text-danger-400 transition-colors"
+                                            onClick={async () => {
+                                                if (!window.confirm(`Delete record for "${record.name}"?`)) return;
+                                                try {
+                                                    await del(`/institution/records/${record.id}`);
+                                                    fetchRecords();
+                                                    toast.success('Record deleted successfully');
+                                                } catch (err) {
+                                                    toast.error(err.response?.data?.error?.message || 'Failed to delete record');
+                                                }
+                                            }}
+                                            aria-label={`Delete record for ${record.name}`}
+                                        >
                                             <Trash2 size={18} />
                                         </button>
                                     </div>

@@ -2,9 +2,10 @@ import re
 import logging
 from datetime import datetime, timedelta, timezone
 import jwt
-from flask import current_app
+from flask import current_app, request
 from models import db
 from models.user import User
+from models.token_blacklist import TokenBlacklist
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,8 @@ def register_user(email, password, name, role='user'):
     user = User(
         email=email,
         name=name,
-        role=role
+        role=role,
+        is_approved=(role != 'institution')  # Institutions require admin approval
     )
     user.set_password(password)
 
@@ -96,6 +98,33 @@ def get_user_by_id(user_id):
     return db.session.get(User, user_id)
 
 
+def revoke_token(token_string, user_id):
+    """Add a token to the blacklist so it can no longer be used."""
+    try:
+        payload = jwt.decode(
+            token_string,
+            current_app.config['JWT_SECRET_KEY'],
+            algorithms=['HS256']
+        )
+        expires_at = datetime.fromtimestamp(payload['exp'], tz=timezone.utc)
+    except jwt.InvalidTokenError:
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+
+    entry = TokenBlacklist(
+        jti=token_string,
+        user_id=user_id,
+        expires_at=expires_at
+    )
+    db.session.add(entry)
+    db.session.commit()
+    logger.info(f'Token revoked for user {user_id}')
+
+
+def logout_user(token_string, user_id):
+    """Logout by revoking the current token."""
+    revoke_token(token_string, user_id)
+
+
 def change_password(user_id, old_password, new_password):
     """Change user password after verifying the old password."""
     if not old_password or not new_password:
@@ -112,6 +141,18 @@ def change_password(user_id, old_password, new_password):
         raise ValueError('INVALID_CREDENTIALS')
 
     user.set_password(new_password)
+
+    # Revoke the current token so old sessions are invalidated
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        current_token = auth_header.replace('Bearer ', '')
+        entry = TokenBlacklist(
+            jti=current_token,
+            user_id=user_id,
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=24)
+        )
+        db.session.add(entry)
+
     db.session.commit()
 
     logger.info(f'Password changed for user: {user.email}')

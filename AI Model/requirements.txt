@@ -1,0 +1,11 @@
+numpy
+pandas
+scikit-learn
+opencv-python
+Pillow
+fastapi
+uvicorn
+python-dotenv
+python-multipart
+google-generativeai
+pytest

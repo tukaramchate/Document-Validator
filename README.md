@@ -1,138 +1,120 @@
-# Document-Validator
+# VeriAcd (Document-Validator)
 
-A full-stack AI-powered document validation system that verifies document authenticity using CNN analysis, OCR text extraction, and database cross-verification.
+**Project Name:** VeriAcd  
+**Team Name:** Error-404  
+**Location:** Pune, MH  
+**Contact:** 9322942240 | tukaramchate397@gmail.com  
+
+A full-stack AI-powered educational document validation system that verifies document authenticity using Visual Analysis (CNN), OCR text extraction (Gemini 1.5), and database cross-verification.
 
 ## Overview
 
-Final year project that combines AI-based document analysis with database verification. The system processes uploaded documents through a multi-stage pipeline — CNN for visual authenticity, OCR for text extraction, and fuzzy matching against trusted records — to produce a confidence score and verdict.
+Final year project that combines AI-based document analysis with database verification. The system processes uploaded educational certificates and marksheets through a multi-stage pipeline — visual authenticity checks, AI OCR text extraction, and fuzzy matching against trusted institution records — to produce a confidence score and verdict.
 
-## Project Structure
+## Project Structure (Microservices Architecture)
 
 ```
 Document-Validator/
-├── backend/                    # Flask REST API
+├── backend/                    # Flask REST API (Core Business Logic)
 │   ├── app.py                  # Application factory
-│   ├── config.py               # Dev/Prod/Test configuration
-│   ├── blueprints/             # Route handlers (auth, upload, validation)
+│   ├── blueprints/             # Routes (auth, validation, institution, admin)
 │   ├── models/                 # SQLAlchemy models (User, Document, Result)
-│   ├── services/               # Business logic layer
-│   ├── middleware/              # JWT auth & error handling
-│   ├── utils/                  # File & response utilities
-│   └── tests/                  # Pytest test suite (30 tests)
-├── frontend/                   # React + Vite SPA
-│   └── src/
-│       ├── pages/              # Login, Register, Dashboard, Upload, Results, History
-│       ├── components/         # Navbar, Layout, ProtectedRoute
-│       ├── context/            # AuthContext (JWT state management)
-│       ├── hooks/              # useApi (generic API wrapper)
-│       └── api/                # Axios instance with interceptors
-├── AI Model/                   # ML models (CNN, OCR) — in development
-└── Documentation/              # Implementation plans
+│   └── services/               # Pipeline orchestration & DB matching
+├── frontend/                   # React + Vite SPA (User Interface)
+│   └── src/                    # Pages, Contexts, Hooks, and API wrappers
+├── AI Model/                   # AI Microservices
+│   ├── OCR_api/                # FastAPI service (Gemini Vision OCR)
+│   ├── forge_detection/        # FastAPI service (CNN visual forgery detection)
+│   └── model.py                # Shared AI pipeline interfaces
+└── Documentation/              # Project diagrams & run instructions
 ```
 
 ## Tech Stack
 
 | Layer | Technologies |
 |---|---|
-| **Frontend** | React 18, Vite, Tailwind CSS v4, Recharts, Axios, React Router |
-| **Backend** | Flask, Flask-SQLAlchemy, Flask-Migrate, PyJWT, bcrypt |
-| **AI/ML** | TensorFlow/Keras (CNN), Tesseract (OCR), OpenCV, scikit-learn |
-| **Database** | SQLite (dev), PostgreSQL-ready (prod) |
+| **Frontend** | React 18, Vite, Tailwind CSS v4, Recharts, Axios |
+| **Backend** | Flask, Flask-SQLAlchemy, Flask-Migrate, PyJWT, psycopg |
+| **AI/ML** | FastAPI, Google Generative AI (Gemini Flash), OpenCV, TensorFlow/Keras |
+| **Database** | PostgreSQL |
 | **Testing** | pytest, pytest-cov |
 
-## Quick Start
+## Features
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
+- **🔐 Security-First Authentication** — JWT-based access with token blacklisting, fail-fast SECRETS validation, and strict route guards.
+- **🏢 Institution Workflows** — Institutions can register (pending Admin approval) and bulk-upload trusted graduate records (max 500/request).
+- **📤 Document Verification** — Drag-and-drop file uploads with dynamic status polling and PDF report generation.
+- **🧠 3-Stage AI Pipeline** — Coordinates visual forgery analysis, Gemini-driven OCR data extraction, and PostgreSQL fuzzy matching.
+- **🛡️ Admin Dashboard** — System-wide analytics, recent activity logs, and pending institution approval management.
 
-### 1. Backend
+## Environment Setup
 
-```bash
-cd backend
-pip install -r requirements.txt
+You need to configure two `.env` files for the system to work.
 
-# Create .env from template
-cp .env.example .env
-# Edit .env with your secret keys
-
-python app.py
-# → API running at http://localhost:5000
+### 1. Backend (`backend/.env`)
+Must be created from `backend/.env.example`. *Note: The API will refuse to start if you use weak default secrets!*
+```env
+SECRET_KEY=generate_a_strong_random_secret_here
+JWT_SECRET_KEY=generate_a_strong_random_jwt_secret_here
+DATABASE_URL=postgresql+psycopg://postgres:yourpassword@localhost:5432/document_validator
+UPLOAD_FOLDER=uploads
+MAX_FILE_SIZE_MB=16
 ```
 
-### 2. Frontend
+### 2. OCR Service (`AI Model/OCR_api/.env`)
+```env
+GEMINI_API_KEY=your_google_gemini_api_key_here
+```
 
+## Running the Project
+
+The system requires **4 separate terminal windows** to run all microservices concurrently.
+
+### 1. Backend API (Port 5000)
+```bash
+cd backend
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app.py
+```
+
+### 2. Frontend App (Port 5173)
 ```bash
 cd frontend
 npm install
 npm run dev
-# → App running at http://localhost:5173
 ```
 
-### 3. Run Tests
-
+### 3. AI OCR Service (Port 8001)
 ```bash
-cd backend
-python -m pytest tests/ -v
-# 30 tests — auth, upload, validation
+cd "AI Model\OCR_api"
+..\..\backend\venv\Scripts\Activate.ps1
+python -m uvicorn main:app --reload --port 8001
+# (Note: Use --port 8001 without --reload if using Python 3.14 to avoid watchdog issues)
 ```
 
-## API Endpoints
-
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | — | Register new user |
-| `POST` | `/api/auth/login` | — | Login & get JWT token |
-| `GET` | `/api/auth/profile` | ✓ | Get user profile |
-| `POST` | `/api/upload` | ✓ | Upload document (PDF/JPG/PNG, ≤16MB) |
-| `GET` | `/api/upload/list` | ✓ | List documents (paginated) |
-| `DELETE` | `/api/upload/<id>` | ✓ | Delete document |
-| `POST` | `/api/validate/<id>` | ✓ | Run AI validation pipeline |
-| `GET` | `/api/results/<id>` | ✓ | Get validation result |
-| `GET` | `/api/history` | ✓ | Validation history (paginated) |
-| `GET` | `/api/health` | — | Health check |
-
-## Features
-
-- **🔐 Authentication** — JWT-based register/login with protected routes
-- **📤 Document Upload** — Drag-and-drop with file type/size validation & UUID storage
-- **🧠 AI Validation Pipeline** — CNN visual analysis + OCR text extraction + DB cross-verification
-- **📊 Score Visualization** — Circular score chart, breakdown bars, and verdict badges (Recharts)
-- **📋 Validation History** — Paginated list with verdict filter tabs (Authentic/Suspicious/Fake)
-- **🌙 Dark Mode UI** — Glassmorphism design with smooth animations
-- **🛡️ Security** — Path traversal prevention, file whitelist, ownership checks
-
-## How It Works
-
-```
-Upload → Preprocess → CNN Analysis → OCR Extraction → DB Matching → Score & Verdict
-                        (40%)           (20%)            (40%)
+### 4. AI Forge Detection Service (Port 8002)
+```bash
+cd "AI Model\forge_detection"
+..\..\backend\venv\Scripts\Activate.ps1
+python -m uvicorn main:app --reload --port 8002
 ```
 
-1. User uploads a document through the React frontend
-2. Backend saves the file securely with UUID naming
-3. **CNN** analyzes visual authenticity (score 0–1)
-4. **OCR** extracts text fields & measures confidence (score 0–1)
-5. **Database** cross-verifies extracted fields via fuzzy matching (score 0–1)
-6. Weighted final score → verdict: **AUTHENTIC** (≥90%), **SUSPICIOUS** (≥70%), or **FAKE** (<70%)
-7. Results displayed with interactive charts and field-by-field breakdown
+## How Validation Works
 
-> **Note:** The AI pipeline currently uses mock scores. Replace the mock functions in `services/validation_service.py` with real model calls once the CNN is trained.
-
-## Environment Variables
-
-### Backend (`backend/.env`)
 ```
-SECRET_KEY=your-secret-key
-JWT_SECRET_KEY=your-jwt-secret-key
-DATABASE_URL=sqlite:///dev.db
-FLASK_ENV=development
+Upload → Preprocess → CNN Analysis → Gemini OCR → DB Fuzzy Match → Score & Verdict
+                          (10%)          (40%)         (50%)
 ```
 
-### Frontend (`frontend/.env`)
-```
-VITE_API_URL=http://localhost:5000/api
-```
+1. **User** uploads an educational certificate via the React frontend.
+2. **Backend API** stores the file and dispatches async requests to the AI microservices.
+3. **Forge API (Port 8002)** analyzes for visual tampering artifacts.
+4. **OCR API (Port 8001)** sends the image to Gemini 1.5 Flash to extract structured JSON (Name, Roll No, Branch, CGPA).
+5. **Backend Database** performs Levenshtein fuzzy matching on the extracted fields against trusted `InstitutionRecords`.
+6. A weighted final score is calculated → verdict: **AUTHENTIC** (≥90%), **SUSPICIOUS** (≥70%), or **FAKE** (<70%).
+7. The user can view a detailed breakdown and download a dynamically generated PDF report.
 
 ## License
 

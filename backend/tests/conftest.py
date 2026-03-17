@@ -2,6 +2,23 @@ import os
 import sys
 import pytest
 
+# Inject tensorflow mock before anything else is imported
+from unittest.mock import MagicMock
+tf_mock = MagicMock()
+tf_mock.keras = MagicMock()
+tf_mock.keras.models = MagicMock()
+tf_mock.keras.models.load_model = MagicMock(return_value=MagicMock())
+tf_mock.keras.metrics = MagicMock()
+tf_mock.keras.metrics.AUC = MagicMock()
+sys.modules['tensorflow'] = tf_mock
+sys.modules['tensorflow.keras'] = tf_mock.keras
+sys.modules['tensorflow.keras.models'] = tf_mock.keras.models
+sys.modules['tensorflow.keras.layers'] = MagicMock()
+sys.modules['tensorflow.keras.optimizers'] = MagicMock()
+sys.modules['tensorflow.keras.callbacks'] = MagicMock()
+sys.modules['tensorflow.keras.applications'] = MagicMock()
+sys.modules['keras'] = MagicMock()
+
 # Add backend directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 

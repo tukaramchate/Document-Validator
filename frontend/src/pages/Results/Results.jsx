@@ -31,19 +31,18 @@ export default function Results() {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        const fetchResults = async () => {
+            try {
+                const response = await get(`/results/${docId}`);
+                setResult(response.data.result);
+            } catch (err) {
+                setError(err.response?.data?.error?.message || 'Failed to load results');
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchResults();
-    }, [docId]);
-
-    const fetchResults = async () => {
-        try {
-            const response = await get(`/results/${docId}`);
-            setResult(response.data.result);
-        } catch (err) {
-            setError(err.response?.data?.error?.message || 'Failed to load results');
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [docId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return (

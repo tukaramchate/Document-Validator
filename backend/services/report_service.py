@@ -3,12 +3,18 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from datetime import datetime
+from datetime import datetime, timezone
 
 
-def generate_validation_report(document, result, output_path):
-    """Generate a PDF validation report for a document result."""
-    doc = SimpleDocTemplate(output_path, pagesize=letter)
+def generate_validation_report(document, result, output):
+    """Generate a PDF validation report for a document result.
+    
+    Args:
+        document: Document model instance
+        result: Result model instance
+        output: file path (str) or file-like object (e.g. BytesIO)
+    """
+    doc = SimpleDocTemplate(output, pagesize=letter)
     styles = getSampleStyleSheet()
     elements = []
 
@@ -43,12 +49,16 @@ def generate_validation_report(document, result, output_path):
     elif result.verdict == 'SUSPICIOUS':
         verdict_color = colors.orange
 
+    def _fmt_score(val):
+        """Format a score as percentage, handling None values."""
+        return f"{val * 100:.2f}%" if val is not None else "N/A"
+
     res_info = [
         ["Verdict", Paragraph(f"<font color={verdict_color.hexval()}><b>{result.verdict}</b></font>", styles['Normal'])],
-        ["Overall Authenticity Score", f"{result.score * 100:.2f}%"],
-        ["AI Visual Confidence (CNN)", f"{result.cnn_score * 100:.2f}%"],
-        ["OCR Text Confidence", f"{result.ocr_confidence * 100:.2f}%"],
-        ["Database Match Score", f"{result.db_match_score * 100:.2f}%"],
+        ["Overall Authenticity Score", _fmt_score(result.final_score)],
+        ["AI Visual Confidence (CNN)", _fmt_score(result.cnn_score)],
+        ["OCR Text Confidence", _fmt_score(result.ocr_confidence)],
+        ["Database Match Score", _fmt_score(result.db_match_score)],
         ["Validation Timestamp", result.validated_at.strftime("%Y-%m-%d %H:%M:%S") if result.validated_at else "N/A"]
     ]
     t2 = Table(res_info, colWidths=[150, 300])
@@ -64,8 +74,9 @@ def generate_validation_report(document, result, output_path):
     if result.extracted_data:
         elements.append(Paragraph("<b>Extracted Data Verification</b>", styles['Heading2']))
         data_rows = [["Field", "Value", "Match status"]]
+        field_matches = result.field_matches or {}
         for field, value in result.extracted_data.items():
-            match = result.match_details.get(field, False)
+            match = field_matches.get(field, False)
             match_text = "PASSED" if match else "FAILED"
             match_color = colors.green if match else colors.red
             data_rows.append([
@@ -85,8 +96,8 @@ def generate_validation_report(document, result, output_path):
 
     # Footer
     elements.append(Spacer(1, 40))
-    footer_text = f"Report generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} by Document-Validator AI System."
+    footer_text = f"Report generated on {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC by Document-Validator AI System."
     elements.append(Paragraph(footer_text, ParagraphStyle(name='Footer', fontSize=8, textColor=colors.grey)))
 
     doc.build(elements)
-    return output_path
+    return output
