@@ -4,14 +4,10 @@ import logging
 from flask import Flask, jsonify, request, g
 from flask_cors import CORS
 from flask_migrate import Migrate
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from models import db
 from config import config_by_name
 from middleware.error_handler import register_error_handlers
-
-# Shared limiter instance — initialized with app in create_app()
-limiter = Limiter(key_func=get_remote_address, default_limits=[])
+from extensions import limiter
 
 # Configure logging
 _backend_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,7 +39,7 @@ def create_app(config_name='default'):
     limiter.init_app(app)
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+            "origins": app.config.get('CORS_ORIGINS', ["*"]),
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "Accept", "X-Requested-With"]
         }

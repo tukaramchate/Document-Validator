@@ -22,7 +22,9 @@ export function useApi() {
 
     const get = useCallback((url, config) => request('GET', url, null, config), [request]);
     const post = useCallback((url, data, config) => request('POST', url, data, config), [request]);
+    const put = useCallback((url, data, config) => request('PUT', url, data, config), [request]);
+    const patch = useCallback((url, data, config) => request('PATCH', url, data, config), [request]);
     const del = useCallback((url, config) => request('DELETE', url, null, config), [request]);
 
-    return { loading, error, setError, get, post, del };
+    return { loading, error, setError, get, post, put, patch, del };
 }

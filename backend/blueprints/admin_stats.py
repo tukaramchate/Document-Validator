@@ -1,7 +1,8 @@
 import logging
-from flask import Blueprint, jsonify
-from app import limiter
+from flask import Blueprint, request
+from extensions import limiter
 from middleware.auth_middleware import token_required, admin_required
+from models import db
 from models.user import User
 from models.document import Document
 from models.result import Result
@@ -51,8 +52,9 @@ def get_system_stats(current_user):
 def get_recent_activity(current_user):
     """Get recent system-wide activity."""
     try:
+        from sqlalchemy.orm import joinedload
         recent_results = Result.query \
-            .join(Document) \
+            .options(joinedload(Result.document)) \
             .order_by(Result.validated_at.desc()) \
             .limit(10) \
             .all()
@@ -66,10 +68,53 @@ def get_recent_activity(current_user):
                 'verdict': res.verdict,
                 'score': res.final_score,
                 'validated_at': res.validated_at.isoformat() if res.validated_at else None,
-                'user_id': res.document.user_id # Could join User to get names too
+                'user_id': res.document.user_id
             })
             
         return success_response(data={'activity': activity})
     except Exception as e:
         logger.error(f'Admin activity error: {e}', exc_info=True)
         return error_response('Failed to retrieve recent activity', 'INTERNAL_ERROR', 500)
+
+
+@admin_stats_bp.route('/institutions/pending', methods=['GET'])
+@token_required
+@admin_required
+def list_pending_institutions(current_user):
+    """List all institution accounts awaiting admin approval."""
+    try:
+        pending = User.query.filter_by(role='institution', is_approved=False).all()
+        return success_response(data={
+            'institutions': [u.to_dict() for u in pending]
+        })
+    except Exception as e:
+        logger.error(f'Pending institutions error: {e}', exc_info=True)
+        return error_response('Failed to retrieve pending institutions', 'INTERNAL_ERROR', 500)
+
+
+@admin_stats_bp.route('/institutions/<int:user_id>/approve', methods=['PUT'])
+@token_required
+@admin_required
+def approve_institution(current_user, user_id):
+    """Approve or reject an institution registration."""
+    try:
+        user = db.session.get(User, user_id)
+        if not user or user.role != 'institution':
+            return error_response('Institution not found', 'NOT_FOUND', 404)
+
+        data = request.get_json() or {}
+        approved = data.get('approved', True)
+
+        user.is_approved = approved
+        db.session.commit()
+
+        action = 'approved' if approved else 'rejected'
+        logger.info(f'Institution {user.email} {action} by admin {current_user.email}')
+        return success_response(
+            data={'user': user.to_dict()},
+            message=f'Institution {action} successfully'
+        )
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Approve institution error: {e}', exc_info=True)
+        return error_response('Failed to update institution status', 'INTERNAL_ERROR', 500)

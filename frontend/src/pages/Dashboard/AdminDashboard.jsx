@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
-import LoadingSpinner from '../../components/LoadingSpinner';
+import { Skeleton, StatCardSkeleton, TableRowSkeleton } from '../../components/Skeleton';
 import AlertMessage from '../../components/AlertMessage';
 import {
     Users,
@@ -42,8 +42,42 @@ export default function AdminDashboard() {
         }
     };
 
-    if (loading) return <LoadingSpinner />;
     if (error) return <AlertMessage type="error" message={error} />;
+
+    if (loading) {
+        return (
+            <div className="space-y-8 animate-fade-in">
+                {/* Header Skeleton */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                    <div>
+                        <Skeleton className="h-10 w-64 mb-2" />
+                        <Skeleton className="h-5 w-80" />
+                    </div>
+                    <div className="flex gap-3">
+                        <Skeleton className="h-10 w-32 rounded-xl" />
+                        <Skeleton className="h-10 w-40 rounded-xl" />
+                    </div>
+                </div>
+
+                {/* Stats Grid Skeleton */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* System Activity Skeleton */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="card rounded-[2rem] p-8 mt-6">
+                            <Skeleton className="h-8 w-48 mb-6" />
+                            {[1, 2, 3, 4].map(i => <TableRowSkeleton key={i} />)}
+                        </div>
+                    </div>
+                    {/* Alerts Skeleton */}
+                    <Skeleton className="h-96 w-full rounded-[2rem] mt-6" />
+                </div>
+            </div>
+        );
+    }
 
     const statCards = [
         { label: 'Total Users', value: stats?.users, icon: Users, color: 'brand' },

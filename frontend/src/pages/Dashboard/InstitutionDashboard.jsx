@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
-import LoadingSpinner from '../../components/LoadingSpinner';
+import { Skeleton, StatCardSkeleton } from '../../components/Skeleton';
 import AlertMessage from '../../components/AlertMessage';
 import {
     Database,
@@ -37,13 +37,38 @@ export default function InstitutionDashboard() {
         }
     };
 
-    if (loading) return <LoadingSpinner />;
     if (error) return <AlertMessage type="error" message={error} />;
+
+    if (loading) {
+        return (
+            <div className="space-y-8 animate-fade-in">
+                {/* Header Skeleton */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                    <div>
+                        <Skeleton className="h-10 w-64 mb-2" />
+                        <Skeleton className="h-5 w-48" />
+                    </div>
+                    <Skeleton className="h-12 w-40 rounded-xl" />
+                </div>
+
+                {/* Stats Grid Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map(i => <StatCardSkeleton key={i} />)}
+                </div>
+
+                {/* Main Cards Skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Skeleton className="h-80 w-full rounded-[2.5rem]" />
+                    <Skeleton className="h-80 w-full rounded-[2.5rem]" />
+                </div>
+            </div>
+        );
+    }
 
     const statCards = [
         { label: 'Verification Records', value: stats?.total_records || 0, icon: Database, color: 'brand' },
-        { label: 'Trust Score', value: '99.8%', icon: ShieldCheck, color: 'brand' },
-        { label: 'Matches Found', value: '142', icon: CheckCircle2, color: 'success' },
+        { label: 'Trust Score', value: stats?.trust_score ? `${stats.trust_score}%` : 'N/A', icon: ShieldCheck, color: 'brand' },
+        { label: 'Matches Found', value: stats?.matches_found ?? 'N/A', icon: CheckCircle2, color: 'success' },
     ];
 
     return (
@@ -90,7 +115,7 @@ export default function InstitutionDashboard() {
                         </div>
                         <h2 className="text-2xl font-black text-surface-100 mb-4">Verification Truth Data</h2>
                         <p className="text-surface-400 font-medium mb-10 max-w-sm leading-relaxed">
-                            Upload your official student or employee records to enable seamless AI-powered verification across the EduVerify AI network.
+                            Upload your official student or employee records to enable seamless AI-powered verification across the VeriAcd network.
                         </p>
                         <div className="flex gap-4">
                             <Link to="/institution/records" className="btn-primary px-8 py-3 rounded-xl font-bold">
@@ -110,7 +135,7 @@ export default function InstitutionDashboard() {
                     </div>
                     <h2 className="text-2xl font-black text-surface-100 mb-4">Enterprise Integration</h2>
                     <p className="text-surface-400 font-medium mb-6 leading-relaxed">
-                        Your institution is currently using the **Standard Tier**. You can issue verifiable credentials that are cryptographically secured.
+                        Your institution is currently using the <strong className="text-surface-200">Standard Tier</strong>. You can issue verifiable credentials that are cryptographically secured.
                     </p>
 
                     <div className="space-y-4">

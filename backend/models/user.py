@@ -14,6 +14,7 @@ class User(db.Model):
     role = db.Column(db.String(20), default='user') # admin, institution, user
     validation_count = db.Column(db.Integer, default=0)
     is_paid = db.Column(db.Boolean, default=False)
+    is_approved = db.Column(db.Boolean, default=True)  # Institutions require admin approval
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
@@ -36,6 +37,7 @@ class User(db.Model):
             'role': self.role,
             'validation_count': self.validation_count,
             'is_paid': self.is_paid,
+            'is_approved': self.is_approved,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 

@@ -1,139 +1,143 @@
-# Document-Validator
+# VeriAcd (Document-Validator)
 
-A full-stack AI-powered document validation system that verifies document authenticity using CNN analysis, OCR text extraction, and database cross-verification.
+VeriAcd is a full-stack educational document validation platform.
+It verifies uploaded marksheets/certificates using:
 
-## Overview
+- CNN-based visual forgery detection
+- OCR plus field extraction (Gemini + fallback parser)
+- trusted institutional record cross-checking
 
-Final year project that combines AI-based document analysis with database verification. The system processes uploaded documents through a multi-stage pipeline — CNN for visual authenticity, OCR for text extraction, and fuzzy matching against trusted records — to produce a confidence score and verdict.
+The system returns a final verdict and a downloadable PDF report.
 
-## Project Structure
+## Current Architecture
 
-```
+The project runs as 3 services:
+
+- Frontend (React + Vite): Port 5173
+- Backend API (Flask): Port 5000
+- AI Model Service (FastAPI): Port 8001
+
+Reference diagram: `Documentation/ieee_architecture_diagram.mmd`
+
+## Repository Structure
+
+```text
 Document-Validator/
-├── backend/                    # Flask REST API
-│   ├── app.py                  # Application factory
-│   ├── config.py               # Dev/Prod/Test configuration
-│   ├── blueprints/             # Route handlers (auth, upload, validation)
-│   ├── models/                 # SQLAlchemy models (User, Document, Result)
-│   ├── services/               # Business logic layer
-│   ├── middleware/              # JWT auth & error handling
-│   ├── utils/                  # File & response utilities
-│   └── tests/                  # Pytest test suite (30 tests)
-├── frontend/                   # React + Vite SPA
-│   └── src/
-│       ├── pages/              # Login, Register, Dashboard, Upload, Results, History
-│       ├── components/         # Navbar, Layout, ProtectedRoute
-│       ├── context/            # AuthContext (JWT state management)
-│       ├── hooks/              # useApi (generic API wrapper)
-│       └── api/                # Axios instance with interceptors
-├── AI Model/                   # ML models (CNN, OCR) — in development
-└── Documentation/              # Implementation plans
+|- frontend/                    # React app (UI)
+|  |- src/
+|  |- package.json
+|
+|- backend/                     # Flask API + business logic
+|  |- app.py
+|  |- blueprints/
+|  |- models/
+|  |- services/
+|  |- requirements.txt
+|  |- start_backend.ps1
+|
+|- AI Model/                    # FastAPI AI microservice
+|  |- app/                      # API entrypoint: app.main:app
+|  |- src/                      # CNN, OCR, pipeline logic
+|  |- saved_models/
+|  |- requirements.txt
+|  |- start_ai_model.ps1
+|
+|- Documentation/
+|  |- run.txt
+|  |- ieee_architecture_diagram.mmd
+|
+`- README.md
 ```
 
-## Tech Stack
+## Tech Stack (Actual)
 
 | Layer | Technologies |
 |---|---|
-| **Frontend** | React 18, Vite, Tailwind CSS v4, Recharts, Axios, React Router |
-| **Backend** | Flask, Flask-SQLAlchemy, Flask-Migrate, PyJWT, bcrypt |
-| **AI/ML** | TensorFlow/Keras (CNN), Tesseract (OCR), OpenCV, scikit-learn |
-| **Database** | SQLite (dev), PostgreSQL-ready (prod) |
-| **Testing** | pytest, pytest-cov |
+| Frontend | React 19, Vite 7, Tailwind CSS 4, React Router 7, Axios, Recharts |
+| Backend | Flask 3, Flask-SQLAlchemy, Flask-Migrate, Flask-Limiter, PyJWT, psycopg |
+| AI Service | FastAPI, Uvicorn, PyTorch, Torchvision, OpenCV, Pillow, pdf2image, Gemini API |
+| Database | PostgreSQL |
+| Testing | pytest, pytest-cov |
 
-## Quick Start
+## Core Workflow (End-to-End)
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
+1. User logs in from the frontend.
+2. Frontend sends auth request to backend authentication service.
+3. Backend validates JWT/token state and user role.
+4. User uploads document from frontend.
+5. Backend upload service validates file, stores it, and saves upload metadata.
+6. User requests validation/report.
+7. Backend validation service:
+    - reads uploaded document metadata,
+    - cross-checks institutional records,
+    - calls AI pipeline (`/api/pipeline/full`).
+8. AI pipeline runs:
+    - CNN forgery detection,
+    - OCR extraction (Gemini + fallback parser).
+9. Backend stores final result and generates PDF report.
+10. Frontend shows validation output and allows PDF download.
 
-### 1. Backend
+## Environment Configuration
 
-```bash
-cd backend
-pip install -r requirements.txt
+Create and configure:
 
-# Create .env from template
-cp .env.example .env
-# Edit .env with your secret keys
+1. `backend/.env`
+2. `AI Model/.env`
 
-python app.py
-# → API running at http://localhost:5000
+Typical backend keys include:
+
+```env
+SECRET_KEY=your_strong_secret
+JWT_SECRET_KEY=your_strong_jwt_secret
+DATABASE_URL=postgresql+psycopg://postgres:password@localhost:5432/document_validator
+UPLOAD_FOLDER=uploads
+MAX_FILE_SIZE_MB=16
 ```
 
-### 2. Frontend
+Typical AI Model key:
 
-```bash
+```env
+GEMINI_API_KEY=your_google_gemini_api_key
+```
+
+## Run Instructions
+
+Use 3 terminals.
+
+### 1) AI Model Service (Port 8001)
+
+```powershell
+cd "AI Model"
+.\start_ai_model.ps1
+```
+
+### 2) Backend API (Port 5000)
+
+```powershell
+cd backend
+.\start_backend.ps1
+```
+
+### 3) Frontend (Port 5173)
+
+```powershell
 cd frontend
 npm install
 npm run dev
-# → App running at http://localhost:5173
 ```
 
-### 3. Run Tests
+## Health and Access
 
-```bash
-cd backend
-python -m pytest tests/ -v
-# 30 tests — auth, upload, validation
-```
+- Frontend: `http://localhost:5173`
+- Backend health: `http://localhost:5000/api/health`
+- AI docs: `http://localhost:8001/docs`
 
-## API Endpoints
+## Notes
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | — | Register new user |
-| `POST` | `/api/auth/login` | — | Login & get JWT token |
-| `GET` | `/api/auth/profile` | ✓ | Get user profile |
-| `POST` | `/api/upload` | ✓ | Upload document (PDF/JPG/PNG, ≤16MB) |
-| `GET` | `/api/upload/list` | ✓ | List documents (paginated) |
-| `DELETE` | `/api/upload/<id>` | ✓ | Delete document |
-| `POST` | `/api/validate/<id>` | ✓ | Run AI validation pipeline |
-| `GET` | `/api/results/<id>` | ✓ | Get validation result |
-| `GET` | `/api/history` | ✓ | Validation history (paginated) |
-| `GET` | `/api/health` | — | Health check |
-
-## Features
-
-- **🔐 Authentication** — JWT-based register/login with protected routes
-- **📤 Document Upload** — Drag-and-drop with file type/size validation & UUID storage
-- **🧠 AI Validation Pipeline** — CNN visual analysis + OCR text extraction + DB cross-verification
-- **📊 Score Visualization** — Circular score chart, breakdown bars, and verdict badges (Recharts)
-- **📋 Validation History** — Paginated list with verdict filter tabs (Authentic/Suspicious/Fake)
-- **🌙 Dark Mode UI** — Glassmorphism design with smooth animations
-- **🛡️ Security** — Path traversal prevention, file whitelist, ownership checks
-
-## How It Works
-
-```
-Upload → Preprocess → CNN Analysis → OCR Extraction → DB Matching → Score & Verdict
-                        (40%)           (20%)            (40%)
-```
-
-1. User uploads a document through the React frontend
-2. Backend saves the file securely with UUID naming
-3. **CNN** analyzes visual authenticity (score 0–1)
-4. **OCR** extracts text fields & measures confidence (score 0–1)
-5. **Database** cross-verifies extracted fields via fuzzy matching (score 0–1)
-6. Weighted final score → verdict: **AUTHENTIC** (≥90%), **SUSPICIOUS** (≥70%), or **FAKE** (<70%)
-7. Results displayed with interactive charts and field-by-field breakdown
-
-> **Note:** The AI pipeline currently uses mock scores. Replace the mock functions in `services/validation_service.py` with real model calls once the CNN is trained.
-
-## Environment Variables
-
-### Backend (`backend/.env`)
-```
-SECRET_KEY=your-secret-key
-JWT_SECRET_KEY=your-jwt-secret-key
-DATABASE_URL=sqlite:///dev.db
-FLASK_ENV=development
-```
-
-### Frontend (`frontend/.env`)
-```
-VITE_API_URL=http://localhost:5000/api
-```
+- Backend and AI service use separate Python environments.
+- If frontend `npm run dev` fails, check Node version and reinstall dependencies.
+- If OCR/extraction fails, verify AI service and `GEMINI_API_KEY`.
 
 ## License
 
-See [LICENSE](LICENSE) file for details.
+See `LICENSE`.

@@ -19,20 +19,6 @@ import {
     Sparkles,
 } from 'lucide-react';
 
-// OCR Service URL — runs separately (uvicorn main:app --port 8001)
-const OCR_API_URL = import.meta.env.VITE_OCR_API_URL || 'http://localhost:8001';
-
-async function callOcrApi(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch(`${OCR_API_URL}/extract/`, {
-        method: 'POST',
-        body: formData,
-    });
-    if (!res.ok) throw new Error(`OCR API error: ${res.status}`);
-    return res.json();
-}
-
 export default function Upload() {
     const [file, setFile] = useState(null);
     const [dragActive, setDragActive] = useState(false);
@@ -61,14 +47,19 @@ export default function Upload() {
         // Auto-call OCR API as soon as a file is selected
         setOcrLoading(true);
         try {
-            const result = await callOcrApi(selectedFile);
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            const response = await post('/ocr/preview', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            const result = response.data.ocr;
             if (result.error) {
                 setOcrError(result.error);
             } else {
                 setOcrData(result);
             }
         } catch (e) {
-            setOcrError('OCR service unavailable. Make sure the OCR API is running on port 8001.');
+            setOcrError('OCR preview is currently unavailable. Please try again.');
         } finally {
             setOcrLoading(false);
         }
@@ -86,7 +77,7 @@ export default function Upload() {
         e.stopPropagation();
         setDragActive(false);
         handleFileSelect(e.dataTransfer.files[0]);
-    }, []);
+    }, [handleFileSelect]);
 
     const handleFileInput = (e) => {
         handleFileSelect(e.target.files[0]);

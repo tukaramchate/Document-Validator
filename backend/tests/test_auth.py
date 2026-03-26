@@ -214,3 +214,95 @@ class TestChangePassword:
             'new_password': 'newpassword456'
         })
         assert response.status_code == 401
+
+
+class TestLogout:
+    """Tests for POST /api/auth/logout"""
+
+    def test_logout_success(self, client, auth_headers):
+        """Test successful logout."""
+        response = client.post('/api/auth/logout', headers=auth_headers)
+        data = response.get_json()
+
+        assert response.status_code == 200
+        assert data['success'] is True
+
+    def test_logout_without_auth(self, client):
+        """Test logout without token returns 401."""
+        response = client.post('/api/auth/logout')
+        assert response.status_code == 401
+
+
+class TestTokenBlacklist:
+    """Tests for token revocation enforcement."""
+
+    def test_revoked_token_rejected(self, client, auth_headers):
+        """Test that a revoked token can no longer access protected endpoints."""
+        # Logout (revokes the token)
+        client.post('/api/auth/logout', headers=auth_headers)
+
+        # Try to use the same token to access profile
+        response = client.get('/api/auth/profile', headers=auth_headers)
+        data = response.get_json()
+
+        assert response.status_code == 401
+        assert data['success'] is False
+
+
+class TestInstitutionRegistration:
+    """Tests for POST /api/auth/register/institution"""
+
+    def test_register_institution_success(self, client):
+        """Test institution registration creates an unapproved account."""
+        response = client.post('/api/auth/register/institution', json={
+            'email': 'university@example.com',
+            'password': 'password123',
+            'name': 'Test University'
+        })
+        data = response.get_json()
+
+        assert response.status_code == 201
+        assert data['success'] is True
+        assert data['data']['user']['role'] == 'institution'
+        assert data['data']['user']['is_approved'] is False
+
+
+class TestLoginApproval:
+    """Tests for is_approved check during login."""
+
+    def test_unapproved_institution_cannot_login(self, client):
+        """Test that an unapproved institution is blocked from logging in."""
+        # Register institution (default: is_approved=False)
+        client.post('/api/auth/register/institution', json={
+            'email': 'blocked@inst.com',
+            'password': 'password123',
+            'name': 'Blocked University'
+        })
+
+        # Try to login
+        response = client.post('/api/auth/login', json={
+            'email': 'blocked@inst.com',
+            'password': 'password123'
+        })
+        data = response.get_json()
+
+        assert response.status_code == 403
+        assert data['success'] is False
+        assert data['error']['code'] == 'PENDING_APPROVAL'
+
+    def test_approved_user_can_login(self, client):
+        """Test that a regular (approved) user can login normally."""
+        client.post('/api/auth/register', json={
+            'email': 'normaluser@example.com',
+            'password': 'password123',
+            'name': 'Normal User'
+        })
+        response = client.post('/api/auth/login', json={
+            'email': 'normaluser@example.com',
+            'password': 'password123'
+        })
+        data = response.get_json()
+
+        assert response.status_code == 200
+        assert data['success'] is True
+

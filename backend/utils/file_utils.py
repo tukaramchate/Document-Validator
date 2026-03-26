@@ -54,26 +54,35 @@ def ensure_upload_dir():
 # Magic bytes signatures for content-type validation
 FILE_SIGNATURES = {
     'pdf': [b'%PDF'],
-    'jpg': [b'\xff\xd8\xff'],
-    'jpeg': [b'\xff\xd8\xff'],
+    'jpg': [b'\xff\xd8'],
+    'jpeg': [b'\xff\xd8'],
     'png': [b'\x89PNG\r\n\x1a\n'],
+    'webp': [b'RIFF'],
 }
 
 
 def validate_file_content(file_storage, extension):
-    """Validate file content matches the declared extension using magic bytes.
-    Returns True if the file content matches, False otherwise.
+    """Validate file content matches the declared file extension's signature.
+    Returns True if the file content matches the expected format, False otherwise.
     Resets the file stream position after reading.
     """
-    signatures = FILE_SIGNATURES.get(extension.lower(), [])
-    if not signatures:
-        # No signature registered for this extension — skip magic byte check.
-        # The extension whitelist in ALLOWED_EXTENSIONS is the primary gate.
-        return True
-
-    # Read enough bytes to check the signature
-    max_sig_len = max(len(sig) for sig in signatures)
+    max_sig_len = 8
     header = file_storage.read(max_sig_len)
     file_storage.seek(0)  # Reset stream position
 
-    return any(header.startswith(sig) for sig in signatures)
+    # If we have known signatures for this extension, enforce strict match
+    expected_sigs = FILE_SIGNATURES.get(extension)
+    if expected_sigs:
+        if any(header.startswith(sig) for sig in expected_sigs):
+            return True
+        # Also log what the header was so we can debug future rejections
+        logger.warning(f"File rejected: extension='{extension}' but header doesn't match expected signatures. Header: {header}")
+        return False
+
+    # For extensions without known signatures, allow if header matches any allowed format
+    for sigs in FILE_SIGNATURES.values():
+        if any(header.startswith(sig) for sig in sigs):
+            return True
+
+    logger.warning(f"File rejected by magic bytes check. Header: {header}")
+    return False

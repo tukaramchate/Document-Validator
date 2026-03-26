@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AlertMessage from '../../components/AlertMessage';
-import { ShieldCheck, Loader2 } from 'lucide-react';
+import AuthBrandPanel from '../../components/AuthBrandPanel';
+import { ShieldCheck, Loader2, ChevronLeft, Mail } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -31,50 +32,69 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-surface-950 px-4">
-            {/* Background */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-600/8 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-500/6 rounded-full blur-3xl" />
-            </div>
+        <div className="min-h-screen flex bg-white">
+            {/* Left Side - Brand Section */}
+            <AuthBrandPanel />
 
-            <div className="relative z-10 w-full max-w-md animate-fade-in">
-                {/* Logo */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl shadow-lg shadow-brand-500/25 mb-4">
-                        <ShieldCheck className="text-white" size={28} />
+            {/* Right Side - Form Section */}
+            <div className="w-full lg:w-1/2 flex flex-col bg-white p-6 sm:p-8 lg:p-12">
+                {/* Back to Home */}
+                <Link to="/" className="flex items-center gap-2 text-surface-600 hover:text-surface-900 mb-8 w-fit font-medium">
+                    <ChevronLeft size={18} />
+                    Back to Home
+                </Link>
+
+                <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+                    {/* Icon */}
+                    <div className="mb-6">
+                        <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center">
+                            <ShieldCheck className="text-brand-500" size={32} />
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-bold text-surface-100">EduVerify AI</h1>
-                    <p className="text-surface-400 mt-1">Sign in to EduVerify AI</p>
-                </div>
 
-                {/* Form */}
-                <div className="card">
+                    {/* Heading */}
+                    <h1 className="text-3xl font-bold text-surface-900 mb-2">Welcome Back</h1>
+                    <p className="text-surface-600 mb-8">Sign in to your account or create a new one</p>
+
+                    {/* Tabs */}
+                    <div className="flex gap-4 mb-8 border-b border-surface-200">
+                        <button className="pb-3 font-semibold text-brand-500 border-b-2 border-brand-500">
+                            Login
+                        </button>
+                        <Link to="/register" className="pb-3 font-semibold text-surface-400 hover:text-surface-600 transition-colors">
+                            Register
+                        </Link>
+                    </div>
+
                     <AlertMessage type="error" message={error} onClose={() => setError('')} />
 
-                    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                         <div>
-                            <label htmlFor="login-email" className="block text-sm font-medium text-surface-300 mb-1.5">Email</label>
-                            <input
-                                id="login-email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="input-field"
-                                placeholder="you@example.com"
-                                required
-                                autoComplete="email"
-                            />
+                            <label htmlFor="login-email" className="block text-sm font-semibold text-surface-700 mb-2">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" size={18} />
+                                <input
+                                    id="login-email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                                    placeholder="you@example.com"
+                                    required
+                                    autoComplete="email"
+                                />
+                            </div>
                         </div>
 
                         <div>
-                            <label htmlFor="login-password" className="block text-sm font-medium text-surface-300 mb-1.5">Password</label>
+                            <label htmlFor="login-password" className="block text-sm font-semibold text-surface-700 mb-2">Password</label>
                             <input
                                 id="login-password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="input-field"
+                                className="w-full px-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                                 placeholder="••••••••"
                                 required
                                 autoComplete="current-password"
@@ -85,13 +105,13 @@ export default function Login() {
                             id="login-submit"
                             type="submit"
                             disabled={loading}
-                            className="btn-primary w-full flex items-center justify-center gap-2"
+                            className="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
                             aria-label="Sign in to your account"
                         >
                             {loading ? (
                                 <>
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    Signing in...
+                                    Signing In...
                                 </>
                             ) : (
                                 'Sign In'
@@ -99,12 +119,18 @@ export default function Login() {
                         </button>
                     </form>
 
-                    <p className="text-center text-sm text-surface-400 mt-4">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="text-brand-400 hover:text-brand-300 font-medium transition-colors">
-                            Sign up
+                    <div className="mt-6 text-center">
+                        <Link to="/help" className="text-brand-500 hover:text-brand-600 font-medium text-sm transition-colors">
+                            Need help? Contact Support
                         </Link>
-                    </p>
+                    </div>
+                </div>
+
+                {/* Footer Links */}
+                <div className="flex items-center justify-center gap-6 mt-8 text-xs text-surface-500">
+                    <a href="#" className="hover:text-surface-700">Terms of Service</a>
+                    <span>•</span>
+                    <a href="#" className="hover:text-surface-700">Privacy Policy</a>
                 </div>
             </div>
         </div>

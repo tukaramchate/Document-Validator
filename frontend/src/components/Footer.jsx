@@ -1,35 +1,34 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Github, Twitter, Linkedin, Mail, ArrowUpRight } from 'lucide-react';
+import { ShieldCheck, Github, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     const sections = [
         {
-            title: 'Platform',
+            title: 'Quick Links',
             links: [
-                { label: 'Dashboard', path: '/dashboard' },
-                { label: 'Upload', path: '/upload' },
-                { label: 'History', path: '/history' },
-                { label: 'API Docs', path: '#' },
+                { label: 'Home', path: '/' },
+                { label: 'Verify Document', path: '/upload' },
+                { label: 'Pricing', path: '/pricing' },
+                { label: 'Help Center', path: '/help' },
             ]
         },
         {
             title: 'Resources',
             links: [
-                { label: 'Authenticity Guide', path: '#' },
-                { label: 'Security', path: '#' },
-                { label: 'Privacy Policy', path: '#' },
-                { label: 'Terms of Service', path: '#' },
+                { label: 'Documentation', path: '/help', external: false },
+                { label: 'API Reference', path: '#', external: false },
+                { label: 'Integration Guide', path: '#', external: false },
+                { label: 'Status Page', path: '#', external: false },
             ]
         }
     ];
 
     const socialLinks = [
-        { icon: Github, path: '#', label: 'GitHub' },
-        { icon: Twitter, path: '#', label: 'Twitter' },
-        { icon: Linkedin, path: '#', label: 'LinkedIn' },
-        { icon: Mail, path: '#', label: 'Email' },
+        { icon: Github, path: 'https://github.com', label: 'GitHub' },
+        { icon: Twitter, path: 'https://x.com', label: 'Twitter' },
+        { icon: Linkedin, path: 'https://linkedin.com', label: 'LinkedIn' },
     ];
 
     return (
@@ -37,80 +36,96 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16">
                     {/* Brand Column */}
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         <Link to="/" className="flex items-center gap-2.5 group w-fit">
-                            <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all duration-300">
-                                <ShieldCheck className="text-white w-5 h-5" />
+                            <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-lg shadow-brand-500/20">
+                                <ShieldCheck className="text-white w-6 h-6" />
                             </div>
-                            <span className="text-lg font-bold bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent">
-                                EduVerify AI
-                            </span>
+                            <div>
+                            <div className="text-sm font-black text-white">VeriAcd</div>
+                                <div className="text-xs text-surface-400">Team Error-404</div>
+                            </div>
                         </Link>
-                        <p className="text-sm text-surface-400 leading-relaxed font-medium">
-                            Truth at the Core of Technology. Helping institutions maintain academic and professional integrity with AI-powered verification.
+                        <p className="text-sm text-surface-300 leading-relaxed max-w-xs">
+                            Securing academic credentials with cutting-edge verification technology.
                         </p>
-                        <div className="flex items-center gap-4">
-                            {socialLinks.map(({ icon: Icon, path, label }) => (
-                                <a
-                                    key={label}
-                                    href={path}
-                                    className="p-2 rounded-lg bg-surface-900/50 text-surface-400 hover:text-brand-400 hover:bg-brand-500/10 transition-all duration-200 border border-surface-800/50"
-                                    aria-label={label}
-                                >
-                                    <Icon size={18} />
-                                </a>
-                            ))}
+                        <div className="inline-block px-3 py-1.5 rounded-full bg-surface-800/50 text-xs font-bold text-surface-300 border border-surface-700/50">
+                            Trusted Platform
                         </div>
                     </div>
 
-                    {/* Links Columns */}
+                    {/* Quick Links & Resources Columns */}
                     {sections.map(({ title, links }) => (
-                        <div key={title} className="space-y-6">
-                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-surface-500">{title}</h3>
-                            <ul className="space-y-4">
-                                {links.map(({ label, path }) => (
+                        <div key={title} className="space-y-4">
+                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-surface-200">{title}</h3>
+                            <ul className="space-y-3">
+                                {links.map(({ label, path, external }) => (
                                     <li key={label}>
-                                        <Link
-                                            to={path}
-                                            className="text-sm font-medium text-surface-400 hover:text-brand-400 transition-colors flex items-center gap-1 group"
-                                        >
-                                            {label}
-                                            {path === '#' && <ArrowUpRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />}
-                                        </Link>
+                                        {external ? (
+                                            <a
+                                                href={path}
+                                                className="text-sm font-medium text-surface-400 hover:text-surface-200 transition-colors inline-flex items-center gap-1"
+                                            >
+                                                {label}
+                                                <span className="text-xs">↗</span>
+                                            </a>
+                                        ) : (
+                                            <Link
+                                                to={path}
+                                                className="text-sm font-medium text-surface-400 hover:text-surface-200 transition-colors"
+                                            >
+                                                {label}
+                                            </Link>
+                                        )}
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     ))}
 
-                    {/* Support Column */}
-                    <div className="space-y-6">
-                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-surface-500">Global Support</h3>
-                        <div className="p-6 rounded-[2rem] bg-gradient-to-br from-brand-600/5 to-transparent border border-brand-500/10">
-                            <p className="text-xs text-surface-400 font-medium leading-relaxed mb-4">
-                                Need assistance? Our security experts are available 24/7 to help with complex verifications.
-                            </p>
-                            <a href="mailto:support@eduverify.ai" className="btn-primary w-full py-2.5 text-xs rounded-xl shadow-md shadow-brand-500/10 flex justify-center items-center gap-2">
-                                <Mail size={14} />
-                                Contact Support
-                            </a>
+                    {/* Contact Column */}
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-surface-200">Contact</h3>
+                        <div className="space-y-3 text-sm">
+                            <div className="flex items-start gap-3">
+                                <MapPin size={16} className="text-brand-400 shrink-0 mt-0.5" />
+                                <div>
+                                    <div className="font-semibold text-surface-200">Team Error-404</div>
+                                    <div className="text-xs text-surface-400">Pune, MH</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <Phone size={16} className="text-brand-400 shrink-0" />
+                                <a href="tel:9322942240" className="text-surface-400 hover:text-surface-200 transition-colors">9322942240</a>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <Mail size={16} className="text-brand-400 shrink-0" />
+                                <a href="mailto:tukaramchate397@gmail.com" className="text-surface-400 hover:text-surface-200 transition-colors">tukaramchate397@gmail.com</a>
+                            </div>
+
+                            <div className="flex items-center gap-4 pt-2">
+                                {socialLinks.map(({ icon: Icon, path, label }) => (
+                                    <a key={label} href={path} className="text-surface-400 hover:text-surface-200 transition-colors" aria-label={label}>
+                                        <Icon size={18} />
+                                    </a>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="mt-16 pt-8 border-t border-surface-800/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="mt-12 pt-8 border-t border-surface-800/20 flex flex-col sm:flex-row items-center justify-between gap-6">
                     <p className="text-xs text-surface-500 font-medium">
-                        © {currentYear} EduVerify AI. Built with integrity.
+                        © {currentYear} Team Firewall_Breakers. All rights reserved.
                     </p>
-                    <div className="flex items-center gap-6">
-                        <span className="flex items-center gap-1.5 text-xs text-success-500 font-bold bg-success-500/5 px-3 py-1.5 rounded-full border border-success-500/10">
-                            <div className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse" />
-                            System Online
-                        </span>
-                        <div className="flex gap-4 text-xs font-bold text-surface-600 uppercase tracking-widest">
-                            <span className="hover:text-surface-400 cursor-pointer transition-colors">v1.2.4</span>
-                        </div>
+                    <div className="flex items-center gap-6 text-xs text-surface-400 flex-wrap justify-center sm:justify-end">
+                        <a href="#" className="hover:text-surface-200 transition-colors">Privacy Policy</a>
+                        <a href="#" className="hover:text-surface-200 transition-colors">Terms of Service</a>
+                        <a href="#" className="hover:text-surface-200 transition-colors">Security Policy</a>
+                        <a href="#" className="hover:text-surface-200 transition-colors">Cookie Policy</a>
                     </div>
                 </div>
             </div>

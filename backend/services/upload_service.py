@@ -49,7 +49,14 @@ def save_document(file, user_id):
         user_id=user_id
     )
     db.session.add(document)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        # Clean up orphaned file on disk
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise
 
     logger.info(f'Document uploaded: {original_name} by user {user_id}')
     return document.to_dict()

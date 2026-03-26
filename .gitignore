@@ -2,8 +2,10 @@ Documentation/
 node_modules/
 dist/
 .env
+**/.env
 *.pyc
 __pycache__/
+.pytest_cache/
 instance/
 .vs/
 .vscode/
@@ -13,6 +15,10 @@ obj/
 *.suo
 *.sln
 *.db
-frontend/build_log.txt
-help.txt
 *.log
+frontend/build_log.txt
+frontend/build_error.txt
+help.txt
+.venv/
+uploads/
+test_uploads/
