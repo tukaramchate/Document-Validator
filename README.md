@@ -22,10 +22,10 @@ Document-Validator/
 │   └── services/               # Pipeline orchestration & DB matching
 ├── frontend/                   # React + Vite SPA (User Interface)
 │   └── src/                    # Pages, Contexts, Hooks, and API wrappers
-├── AI Model/                   # AI Microservices
-│   ├── OCR_api/                # FastAPI service (Gemini Vision OCR)
-│   ├── forge_detection/        # FastAPI service (CNN visual forgery detection)
-│   └── model.py                # Shared AI pipeline interfaces
+├── AI Model/                   # AI Inference + Training module
+│   ├── app/                    # Unified FastAPI app (OCR/Forge/Pipeline endpoints)
+│   ├── src/                    # CNN/OCR/training pipeline code
+│   └── saved_models/           # Trained model artifacts (.pth)
 └── Documentation/              # Project diagrams & run instructions
 ```
 
@@ -68,7 +68,7 @@ GEMINI_API_KEY=your_google_gemini_api_key_here
 
 ## Running the Project
 
-The system requires **4 separate terminal windows** to run all microservices concurrently.
+The system requires **3 separate terminal windows** to run all services concurrently.
 
 ### 1. Backend API (Port 5000)
 ```bash
@@ -86,19 +86,12 @@ npm install
 npm run dev
 ```
 
-### 3. AI OCR Service (Port 8001)
+### 3. AI Service (Port 8001)
 ```bash
-cd "AI Model\OCR_api"
+cd "AI Model"
 ..\..\backend\venv\Scripts\Activate.ps1
-python -m uvicorn main:app --reload --port 8001
+python -m uvicorn app.main:app --reload --port 8001
 # (Note: Use --port 8001 without --reload if using Python 3.14 to avoid watchdog issues)
-```
-
-### 4. AI Forge Detection Service (Port 8002)
-```bash
-cd "AI Model\forge_detection"
-..\..\backend\venv\Scripts\Activate.ps1
-python -m uvicorn main:app --reload --port 8002
 ```
 
 ## How Validation Works

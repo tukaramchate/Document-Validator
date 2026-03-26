@@ -1,6 +1,6 @@
 import logging
 from flask import Blueprint, request
-from app import limiter
+from extensions import limiter
 from middleware.auth_middleware import token_required, admin_required
 from models import db
 from models.user import User
@@ -52,8 +52,9 @@ def get_system_stats(current_user):
 def get_recent_activity(current_user):
     """Get recent system-wide activity."""
     try:
+        from sqlalchemy.orm import joinedload
         recent_results = Result.query \
-            .join(Document) \
+            .options(joinedload(Result.document)) \
             .order_by(Result.validated_at.desc()) \
             .limit(10) \
             .all()

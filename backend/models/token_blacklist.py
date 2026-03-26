@@ -24,5 +24,13 @@ class TokenBlacklist(db.Model):
             TokenBlacklist.query.filter_by(jti=token_string).exists()
         ).scalar()
 
+    @staticmethod
+    def prune_expired():
+        """Delete blacklist entries whose tokens have already expired."""
+        now = datetime.now(timezone.utc)
+        deleted = TokenBlacklist.query.filter(TokenBlacklist.expires_at < now).delete()
+        db.session.commit()
+        return deleted
+
     def __repr__(self):
         return f'<TokenBlacklist user_id={self.user_id}>'

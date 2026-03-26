@@ -1,6 +1,6 @@
 import logging
 from flask import Blueprint, request
-from app import limiter
+from extensions import limiter
 from services.auth_service import register_user, login_user, change_password, logout_user
 from middleware.auth_middleware import token_required, admin_required
 from utils.response_utils import success_response, error_response
@@ -80,6 +80,8 @@ def login():
         msg = str(e)
         if msg == 'INVALID_CREDENTIALS':
             return error_response('Invalid email or password', 'AUTH_ERROR', 401)
+        if msg == 'PENDING_APPROVAL':
+            return error_response('Your account is pending admin approval', 'PENDING_APPROVAL', 403)
         return error_response(msg, 'VALIDATION_ERROR', 400)
     except Exception as e:
         logger.error(f'Login error: {e}', exc_info=True)

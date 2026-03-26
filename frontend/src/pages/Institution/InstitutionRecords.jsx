@@ -47,7 +47,7 @@ export default function InstitutionRecords() {
             setShowAddModal(false);
             setNewRecord({ name: '', id_number: '', metadata: {} });
         } catch (err) {
-            setError(err.response?.data?.error?.message || 'Failed to add record');
+            toast.error(err.response?.data?.error?.message || 'Failed to add record');
         }
     };
 
@@ -147,12 +147,12 @@ export default function InstitutionRecords() {
                                         </div>
                                         <div>
                                             <h4 className="text-surface-100 font-bold">{record.name}</h4>
-                                            <p className="text-xs text-surface-500 font-medium">ID: {record.id_number} • {Object.keys(record.metadata || {}).length} Fields</p>
+                                            <p className="text-xs text-surface-500 font-medium">ID: {record.id_number} • {Object.keys(record.metadata_fields || record.metadata || {}).length} Fields</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="hidden md:flex flex-wrap gap-2 mr-4">
-                                            {Object.entries(record.metadata || {}).map(([key, val]) => (
+                                            {Object.entries(record.metadata_fields || record.metadata || {}).map(([key, val]) => (
                                                 <span key={key} className="px-2 py-1 bg-surface-800 rounded-md text-[10px] text-surface-400 font-bold uppercase tracking-tighter">
                                                     {key}: {val}
                                                 </span>

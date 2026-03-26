@@ -1,7 +1,8 @@
 import os
 import logging
-import json
-import google.generativeai as genai
+import mimetypes
+import requests
+from flask import current_app
 from models import db
 from models.document import Document
 from models.result import Result
@@ -10,15 +11,67 @@ from models.institution_record import InstitutionRecord
 logger = logging.getLogger(__name__)
 
 
-def get_genai_model():
-    """Initialize and return the Gemini model."""
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key or api_key == 'your_gemini_api_key_here':
-        logger.warning("Gemini API key not configured. Falling back to mock data.")
-        return None
-    
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel('gemini-2.5-flash')
+def calculate_final_score(cnn_score, ocr_confidence, db_match_score):
+    """Backend-owned final scoring to keep business logic outside AI services."""
+    weights = {'cnn': 0.4, 'ocr': 0.2, 'db': 0.4}
+
+    cnn_score = float(cnn_score)
+    ocr_confidence = float(ocr_confidence)
+    db_match_score = float(db_match_score)
+
+    final_score = (
+        (cnn_score * weights['cnn']) +
+        (ocr_confidence * weights['ocr']) +
+        (db_match_score * weights['db'])
+    )
+
+    if final_score >= 0.90:
+        verdict = 'AUTHENTIC'
+    elif final_score >= 0.70:
+        verdict = 'SUSPICIOUS'
+    else:
+        verdict = 'FAKE'
+
+    return {
+        'final_score': round(final_score, 4),
+        'verdict': verdict,
+    }
+
+
+def call_ai_pipeline(image_path):
+    """Call AI pipeline service and return cnn+ocr outputs only."""
+    file_name = os.path.basename(image_path)
+    mime_type, _ = mimetypes.guess_type(image_path)
+    if not mime_type:
+        mime_type = 'application/octet-stream'
+
+    pipeline_url = current_app.config['AI_PIPELINE_URL']
+    timeout = current_app.config['AI_REQUEST_TIMEOUT_SECONDS']
+
+    with open(image_path, 'rb') as f:
+        resp = requests.post(
+            pipeline_url,
+            files={'file': (file_name, f, mime_type)},
+            timeout=timeout
+        )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def preview_ocr(file_storage):
+    """Proxy OCR preview through backend so frontend does not call AI services directly."""
+    mime_type = file_storage.mimetype or 'application/octet-stream'
+    ocr_url = current_app.config['AI_OCR_URL']
+    timeout = current_app.config['AI_REQUEST_TIMEOUT_SECONDS']
+
+    file_storage.stream.seek(0)
+    resp = requests.post(
+        ocr_url,
+        files={'file': (file_storage.filename or 'upload', file_storage.stream, mime_type)},
+        timeout=timeout
+    )
+    resp.raise_for_status()
+    return resp.json()
 
 
 
@@ -108,50 +161,37 @@ def validate_document(doc_id, user_id):
     from utils.file_utils import get_upload_path
     image_path = get_upload_path(document.stored_name)
 
-    # Step 4: Run Real Validation Pipeline
-    import sys
-    import pathlib
-    # Add AI Model dir to path
-    _AI_DIR = pathlib.Path(__file__).parent.parent.parent / "AI Model"
-    if str(_AI_DIR) not in sys.path:
-        sys.path.append(str(_AI_DIR))
+    # Step 4: Call AI service for inference-only outputs
+    try:
+        ai_result = call_ai_pipeline(image_path)
+    except Exception as e:
+        logger.error(f"Failed to call AI microservice: {e}")
+        # Assuming mock fallback if AI service fails or not available
+        logger.warning(f"AI service failed, falling back to empty fields: {e}")
+        ai_result = {
+            "cnn_result": {"score": 0.0},
+            "ocr_result": {"confidence": 0.0, "fields": {}}
+        }
         
-    from model import DocumentValidator
-    
-    # We construct the DB record fields expected by the ai matcher if we have ground truth
-    # If the user is an institution, we don't know who the document belongs to yet (they upload many)
-    # If the user is a normal user, we could potentially look up their institution records but the
-    # AI matcher handles the DB matching logic internally.
-    
-    # For now, we will extract text, and then use the previous verify_against_institution_data logic
-    # because the DB schema is tied to SQLAlchemy here in the backend. 
-    # Long term, the AI Model's db_matcher can hit an API endpoint or we pass the dict.
-    # Let's use the DocumentValidator for CNN taking the image, and OCR taking the image.
-    
-    validator = DocumentValidator()
-    validator.load_model()
-    
-    # We call validate without db_record_fields to just get CNN + OCR
-    ai_result = validator.validate(image_path)
-    
-    cnn_score = ai_result["cnn_result"].get("score", 0.0)
-    ocr_confidence = ai_result["ocr_result"].get("confidence", 0.0)
-    extracted_data = ai_result["ocr_result"]["fields"]
+    cnn_score = ai_result.get("cnn_result", {}).get("score", 0.0)
+    # Extract OCR fields and confidence properly from the API response
+    ocr_result = ai_result.get("ocr_result", {})
+    ocr_confidence = ocr_result.get("confidence", 0.0)
+    extracted_data = ocr_result.get("fields", {})
 
-    # Step 7: Database Cross-Verification against Institution Data
+    # Step 5: Database Cross-Verification against Institution Data
     # we reuse the backend's specific DB lookup logic for now since it has access to the db models
     db_result = verify_against_institution_data(extracted_data, user_id)
     db_match_score = db_result['score']
     field_matches = db_result['matches']
 
-    # Step 8: Score Combination (Reusing AI Model's calculator)
-    from verification.score_calculator import calculate_final_score
+    # Step 6: Score Combination (Backend-owned business logic)
     final_calc = calculate_final_score(cnn_score, ocr_confidence, db_match_score)
     
     final_score = final_calc["final_score"]
     verdict = final_calc["verdict"]
 
-    # Step 9: Save result
+    # Step 7: Save result
     result = Result(
         document_id=doc_id,
         cnn_score=cnn_score,
@@ -166,9 +206,8 @@ def validate_document(doc_id, user_id):
     
     # Increment usage count for free users — atomic SQL to prevent race conditions (H1 fix)
     if user.role == 'user':
-        from models.user import User as UserModel
-        db.session.query(UserModel).filter_by(id=user_id).update(
-            {UserModel.validation_count: UserModel.validation_count + 1}
+        db.session.query(User).filter_by(id=user_id).update(
+            {User.validation_count: User.validation_count + 1}
         )
         
     db.session.commit()
@@ -218,14 +257,18 @@ def get_result(doc_id, user_id):
     return document.result.to_dict()
 
 
-def get_validation_history(user_id, page=1, per_page=10, verdict_filter=None):
-    """Get paginated validation history for a user, with optional verdict filter."""
+def get_validation_history(user_id, page=1, per_page=10, verdict_filter=None, search_term=None):
+    """Get paginated validation history for a user with optional filters."""
     query = Result.query \
         .join(Document) \
         .filter(Document.user_id == user_id)
 
     if verdict_filter:
         query = query.filter(Result.verdict == verdict_filter)
+
+    if search_term:
+        like_query = f'%{search_term.strip()}%'
+        query = query.filter(Document.filename.ilike(like_query))
 
     pagination = query \
         .order_by(Result.validated_at.desc()) \
@@ -238,3 +281,15 @@ def get_validation_history(user_id, page=1, per_page=10, verdict_filter=None):
         results.append(result_dict)
 
     return results, pagination.total
+
+
+def get_document_for_report(doc_id, user_id):
+    """Get the document object for generating a validation report."""
+    document = db.session.get(Document, doc_id)
+    if not document:
+        raise ValueError('NOT_FOUND')
+    if document.user_id != user_id:
+        raise ValueError('FORBIDDEN')
+    if not document.result:
+        raise ValueError('NOT_VALIDATED')
+    return document

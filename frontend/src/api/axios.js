@@ -17,7 +17,7 @@ if (!API_BASE_URL) {
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 60000, // Extended AI processing timeout
   headers: {
     'Content-Type': 'application/json',
   },

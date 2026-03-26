@@ -71,6 +71,10 @@ def login_user(email, password):
     if not user.check_password(password):
         raise ValueError('INVALID_CREDENTIALS')
 
+    # Block unapproved institution accounts
+    if not user.is_approved:
+        raise ValueError('PENDING_APPROVAL')
+
     # Generate token
     token = generate_token(user.id)
 

@@ -2,7 +2,7 @@ import os
 import logging
 from flask import Blueprint, request, send_file
 from app import limiter
-from services.validation_service import validate_document, get_result, get_validation_history, revalidate_document
+from services.validation_service import validate_document, get_result, get_validation_history, revalidate_document, preview_ocr
 from services.report_service import generate_validation_report
 from middleware.auth_middleware import token_required
 from utils.response_utils import success_response, error_response, paginated_response
@@ -97,12 +97,35 @@ def history(current_user):
                 'VALIDATION_ERROR', 400
             )
 
+    search_term = request.args.get('search', None)
+
     try:
-        results, total = get_validation_history(current_user.id, page, per_page, verdict_filter)
+        results, total = get_validation_history(current_user.id, page, per_page, verdict_filter, search_term)
         return paginated_response(results, total, page, per_page, 'results')
     except Exception as e:
         logger.error(f'History error: {e}', exc_info=True)
         return error_response('Failed to retrieve history', 'INTERNAL_ERROR', 500)
+
+
+@validation_bp.route('/ocr/preview', methods=['POST'])
+@token_required
+@limiter.limit('20 per minute')
+def ocr_preview(current_user):
+    """Preview OCR extraction via backend proxy."""
+    del current_user  # user is authenticated; identity is not needed in this handler.
+    if 'file' not in request.files:
+        return error_response('No file provided', 'BAD_REQUEST', 400)
+
+    file = request.files['file']
+    if file.filename == '':
+        return error_response('No file selected', 'BAD_REQUEST', 400)
+
+    try:
+        data = preview_ocr(file)
+        return success_response(data={'ocr': data})
+    except Exception as e:
+        logger.error(f'OCR preview error: {e}', exc_info=True)
+        return error_response('Failed to preview OCR', 'INTERNAL_ERROR', 500)
 
 @validation_bp.route('/results/<int:doc_id>/report', methods=['GET'])
 @token_required
@@ -110,15 +133,18 @@ def download_report(current_user, doc_id):
     """Download the validation report as a PDF."""
     try:
         import io
-        from models import db
-        from models.document import Document
-        document = db.session.get(Document, doc_id)
-        if not document:
-             return error_response('Document not found', 'NOT_FOUND', 404)
-        if document.user_id != current_user.id:
-             return error_response('Access denied', 'FORBIDDEN', 403)
-        if not document.result:
-             return error_response('Document not validated yet', 'NOT_VALIDATED', 400)
+        from services.validation_service import get_document_for_report
+        
+        try:
+            document = get_document_for_report(doc_id, current_user.id)
+        except ValueError as ve:
+            msg = str(ve)
+            if msg == 'NOT_FOUND':
+                 return error_response('Document not found', 'NOT_FOUND', 404)
+            if msg == 'FORBIDDEN':
+                 return error_response('Access denied', 'FORBIDDEN', 403)
+            # NOT_VALIDATED
+            return error_response('Document not validated yet', 'NOT_VALIDATED', 400)
 
         # Generate report into in-memory buffer (H6 fix: avoids file race condition)
         buffer = io.BytesIO()

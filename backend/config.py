@@ -42,6 +42,9 @@ class Config:
 
     MAX_CONTENT_LENGTH = int(os.getenv('MAX_FILE_SIZE_MB', '16')) * 1024 * 1024
     ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png'}
+    AI_PIPELINE_URL = os.getenv('AI_PIPELINE_URL', 'http://localhost:8001/api/pipeline/full/')
+    AI_OCR_URL = os.getenv('AI_OCR_URL', 'http://localhost:8001/api/ocr/extract/')
+    AI_REQUEST_TIMEOUT_SECONDS = int(os.getenv('AI_REQUEST_TIMEOUT_SECONDS', '60'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
@@ -68,6 +71,7 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     """Testing configuration."""
     TESTING = True
+    RATELIMIT_ENABLED = False  # Disable rate limiting during tests
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     UPLOAD_FOLDER = os.path.join(Config._BASE_DIR, 'test_uploads')
 

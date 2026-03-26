@@ -110,6 +110,27 @@ def list_records(current_user):
     )
 
 
+@institution_bp.route('/records/<int:record_id>', methods=['DELETE'])
+@token_required
+@institution_required
+def delete_record(current_user, record_id):
+    """Delete a verification record owned by the current institution."""
+    try:
+        record = db.session.get(InstitutionRecord, record_id)
+        if not record:
+            return error_response('Record not found', 'NOT_FOUND', 404)
+        if current_user.role != 'admin' and record.institution_id != current_user.id:
+            return error_response('Access denied', 'FORBIDDEN', 403)
+
+        db.session.delete(record)
+        db.session.commit()
+        return success_response(message='Record deleted successfully')
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Delete record error: {e}', exc_info=True)
+        return error_response('Failed to delete record', 'INTERNAL_ERROR', 500)
+
+
 @institution_bp.route('/stats', methods=['GET'])
 @token_required
 @institution_required

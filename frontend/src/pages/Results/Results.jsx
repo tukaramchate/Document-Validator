@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import api from '../../api/axios';
 import { VERDICT_CONFIG } from '../../utils/constants';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import AlertMessage from '../../components/AlertMessage';
@@ -15,10 +16,7 @@ import {
     Check,
     X,
     ArrowLeft,
-    Share2,
     Calendar,
-    Settings,
-    Layout,
     Download
 } from 'lucide-react';
 import { API_ROUTES } from '../../utils/constants';
@@ -88,6 +86,22 @@ export default function Results() {
         }
     };
 
+    const handleDownloadReport = async () => {
+        try {
+            const response = await api.get(API_ROUTES.REPORT(docId), { responseType: 'blob' });
+            const blobUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.setAttribute('download', `Validation_Report_${docId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            setError(err.response?.data?.error?.message || 'Failed to download report');
+        }
+    };
+
     return (
         <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
             {/* Header */}
@@ -107,7 +121,7 @@ export default function Results() {
                 <div className="flex gap-3">
                     <button
                         className="btn-secondary rounded-xl flex items-center gap-2"
-                        onClick={() => window.open(`${import.meta.env.VITE_API_URL}${API_ROUTES.REPORT(docId)}?token=${localStorage.getItem('token')}`)}
+                        onClick={handleDownloadReport}
                     >
                         <Download size={18} />
                         <span className="hidden sm:inline">Download Report</span>
