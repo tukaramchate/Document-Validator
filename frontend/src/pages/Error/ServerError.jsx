@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useMemo } from 'react';
+import { useId } from 'react';
 
 export default function ServerError() {
-    // Generate a stable error ID that doesn't change on re-render
-    const errorId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
+    const errorId = `err-${useId().replace(/[:]/g, '')}`;
 
     return (
         <div className="min-h-screen bg-surface-950 flex items-center justify-center px-4">

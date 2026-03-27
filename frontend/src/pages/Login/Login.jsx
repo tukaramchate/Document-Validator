@@ -32,14 +32,14 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex bg-white">
+        <div className="min-h-screen flex bg-surface-50">
             {/* Left Side - Brand Section */}
             <AuthBrandPanel />
 
             {/* Right Side - Form Section */}
-            <div className="w-full lg:w-1/2 flex flex-col bg-white p-6 sm:p-8 lg:p-12">
+            <div className="w-full lg:w-1/2 flex flex-col bg-surface-50 p-6 sm:p-8 lg:p-12">
                 {/* Back to Home */}
-                <Link to="/" className="flex items-center gap-2 text-surface-600 hover:text-surface-900 mb-8 w-fit font-medium">
+                <Link to="/" className="flex items-center gap-2 text-surface-500 hover:text-surface-100 mb-8 w-fit font-medium transition-colors">
                     <ChevronLeft size={18} />
                     Back to Home
                 </Link>
@@ -53,8 +53,8 @@ export default function Login() {
                     </div>
 
                     {/* Heading */}
-                    <h1 className="text-3xl font-bold text-surface-900 mb-2">Welcome Back</h1>
-                    <p className="text-surface-600 mb-8">Sign in to your account or create a new one</p>
+                    <h1 className="text-3xl font-bold text-surface-100 mb-2">Welcome Back</h1>
+                    <p className="text-surface-400 mb-8">Sign in to your account or create a new one</p>
 
                     {/* Tabs */}
                     <div className="flex gap-4 mb-8 border-b border-surface-200">
@@ -71,7 +71,7 @@ export default function Login() {
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                         <div>
-                            <label htmlFor="login-email" className="block text-sm font-semibold text-surface-700 mb-2">Email Address</label>
+                            <label htmlFor="login-email" className="block text-sm font-semibold text-surface-400 mb-2">Email Address</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" size={18} />
                                 <input
@@ -79,7 +79,7 @@ export default function Login() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg bg-surface-800 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                                     placeholder="you@example.com"
                                     required
                                     autoComplete="email"
@@ -88,13 +88,13 @@ export default function Login() {
                         </div>
 
                         <div>
-                            <label htmlFor="login-password" className="block text-sm font-semibold text-surface-700 mb-2">Password</label>
+                            <label htmlFor="login-password" className="block text-sm font-semibold text-surface-400 mb-2">Password</label>
                             <input
                                 id="login-password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                                className="w-full px-4 py-3 border border-surface-200 rounded-lg bg-surface-800 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                                 placeholder="••••••••"
                                 required
                                 autoComplete="current-password"
@@ -128,9 +128,9 @@ export default function Login() {
 
                 {/* Footer Links */}
                 <div className="flex items-center justify-center gap-6 mt-8 text-xs text-surface-500">
-                    <a href="#" className="hover:text-surface-700">Terms of Service</a>
+                    <Link to="/help" className="hover:text-surface-300">Terms of Service</Link>
                     <span>•</span>
-                    <a href="#" className="hover:text-surface-700">Privacy Policy</a>
+                    <Link to="/help" className="hover:text-surface-300">Privacy Policy</Link>
                 </div>
             </div>
         </div>

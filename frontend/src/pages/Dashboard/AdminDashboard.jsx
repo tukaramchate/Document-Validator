@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
@@ -17,30 +17,47 @@ import {
 
 export default function AdminDashboard() {
     const { user } = useAuth();
-    const { get } = useApi();
+    const { get, put } = useApi();
     const [stats, setStats] = useState(null);
     const [activity, setActivity] = useState([]);
+    const [pendingInstitutions, setPendingInstitutions] = useState([]);
+    const [updatingInstitutionId, setUpdatingInstitutionId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchAdminData();
-    }, []);
-
-    const fetchAdminData = async () => {
+    const fetchAdminData = useCallback(async () => {
         try {
-            const [statsRes, activityRes] = await Promise.all([
+            const [statsRes, activityRes, pendingRes] = await Promise.all([
                 get('/admin/stats'),
                 get('/admin/activity'),
+                get('/admin/institutions/pending'),
             ]);
             setStats(statsRes.data);
             setActivity(activityRes.data.activity);
+            setPendingInstitutions(pendingRes.data.institutions || []);
         } catch (err) {
             setError(err.response?.data?.error?.message || 'Failed to load system metrics');
         } finally {
             setLoading(false);
         }
-    };
+    }, [get]);
+
+    const updateInstitutionApproval = useCallback(async (institutionId, approved) => {
+        setUpdatingInstitutionId(institutionId);
+        setError('');
+        try {
+            await put(`/admin/institutions/${institutionId}/approve`, { approved });
+            setPendingInstitutions(prev => prev.filter(inst => inst.id !== institutionId));
+        } catch (err) {
+            setError(err.response?.data?.error?.message || 'Failed to update institution approval');
+        } finally {
+            setUpdatingInstitutionId(null);
+        }
+    }, [put]);
+
+    useEffect(() => {
+        fetchAdminData();
+    }, [fetchAdminData]);
 
     if (error) return <AlertMessage type="error" message={error} />;
 
@@ -205,6 +222,55 @@ export default function AdminDashboard() {
                             AI Confidence Threshold is currently set to 90% for <span className="text-success-500">AUTHENTIC</span> categorization.
                         </p>
                     </div>
+                </div>
+
+                {/* Pending Institution Approvals */}
+                <div className="card rounded-[2rem] p-8 border-surface-800/50">
+                    <div className="flex items-center justify-between gap-3 mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-warning-500/10 rounded-xl flex items-center justify-center text-warning-400">
+                                <Building2 size={20} />
+                            </div>
+                            <h2 className="text-xl font-bold text-surface-100">Pending Institutions</h2>
+                        </div>
+                        <span className="px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-surface-800 text-surface-300">
+                            {pendingInstitutions.length}
+                        </span>
+                    </div>
+
+                    {pendingInstitutions.length === 0 ? (
+                        <p className="text-sm text-surface-500">No institutions are waiting for approval.</p>
+                    ) : (
+                        <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                            {pendingInstitutions.map((institution) => {
+                                const isUpdating = updatingInstitutionId === institution.id;
+                                return (
+                                    <div key={institution.id} className="p-4 rounded-2xl border border-surface-800 bg-surface-900/30">
+                                        <p className="text-sm font-bold text-surface-100 truncate">{institution.name}</p>
+                                        <p className="text-xs text-surface-400 truncate">{institution.email}</p>
+                                        <div className="mt-3 flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => updateInstitutionApproval(institution.id, true)}
+                                                disabled={isUpdating}
+                                                className="px-3 py-2 rounded-xl text-xs font-bold bg-success-600 hover:bg-success-500 text-white disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                Approve
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => updateInstitutionApproval(institution.id, false)}
+                                                disabled={isUpdating}
+                                                className="px-3 py-2 rounded-xl text-xs font-bold bg-danger-600 hover:bg-danger-500 text-white disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                Reject
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

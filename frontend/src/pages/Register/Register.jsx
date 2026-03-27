@@ -49,14 +49,14 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen flex bg-white">
+        <div className="min-h-screen flex bg-surface-50">
             {/* Left Side - Brand Section */}
             <AuthBrandPanel />
 
             {/* Right Side - Form Section */}
-            <div className="w-full lg:w-1/2 flex flex-col bg-white p-6 sm:p-8 lg:p-12">
+            <div className="w-full lg:w-1/2 flex flex-col bg-surface-50 p-6 sm:p-8 lg:p-12">
                 {/* Back to Home */}
-                <Link to="/" className="flex items-center gap-2 text-surface-600 hover:text-surface-900 mb-8 w-fit font-medium">
+                <Link to="/" className="flex items-center gap-2 text-surface-500 hover:text-surface-100 mb-8 w-fit font-medium transition-colors">
                     <ChevronLeft size={18} />
                     Back to Home
                 </Link>
@@ -70,8 +70,8 @@ export default function Register() {
                     </div>
 
                     {/* Heading */}
-                    <h1 className="text-3xl font-bold text-surface-900 mb-2">Create Account</h1>
-                    <p className="text-surface-600 mb-6">Join our verification network today</p>
+                    <h1 className="text-3xl font-bold text-surface-100 mb-2">Create Account</h1>
+                    <p className="text-surface-400 mb-6">Join our verification network today</p>
 
                     {/* Tabs */}
                     <div className="flex gap-4 mb-6 border-b border-surface-200">
@@ -91,8 +91,8 @@ export default function Register() {
                                 type="button"
                                 onClick={() => setRole(r)}
                                 className={`flex-1 py-2 px-3 text-sm font-semibold rounded-lg border-2 transition-all ${role === r
-                                    ? 'bg-brand-50 border-brand-500 text-brand-600'
-                                    : 'bg-white border-surface-200 text-surface-600 hover:border-surface-300'
+                                    ? 'bg-brand-500/10 border-brand-500 text-brand-400'
+                                    : 'bg-surface-800 border-surface-200 text-surface-400 hover:border-surface-300'
                                     }`}
                             >
                                 {r === 'user' ? 'Student' : 'Institution'}
@@ -105,7 +105,7 @@ export default function Register() {
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                         <div>
-                            <label htmlFor="register-name" className="block text-sm font-semibold text-surface-700 mb-2">Full Name</label>
+                            <label htmlFor="register-name" className="block text-sm font-semibold text-surface-400 mb-2">Full Name</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" size={18} />
                                 <input
@@ -113,7 +113,7 @@ export default function Register() {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg bg-surface-800 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                                     placeholder="John Doe"
                                     required
                                     minLength={2}
@@ -123,7 +123,7 @@ export default function Register() {
                         </div>
 
                         <div>
-                            <label htmlFor="register-email" className="block text-sm font-semibold text-surface-700 mb-2">Email Address</label>
+                            <label htmlFor="register-email" className="block text-sm font-semibold text-surface-400 mb-2">Email Address</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" size={18} />
                                 <input
@@ -131,7 +131,7 @@ export default function Register() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg bg-surface-800 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                                     placeholder="you@example.com"
                                     required
                                     autoComplete="email"
@@ -140,7 +140,7 @@ export default function Register() {
                         </div>
 
                         <div>
-                            <label htmlFor="register-password" className="block text-sm font-semibold text-surface-700 mb-2">Password</label>
+                            <label htmlFor="register-password" className="block text-sm font-semibold text-surface-400 mb-2">Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" size={18} />
                                 <input
@@ -148,7 +148,7 @@ export default function Register() {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg bg-surface-800 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                                     placeholder="Min. 6 characters"
                                     required
                                     minLength={6}
@@ -158,7 +158,7 @@ export default function Register() {
                         </div>
 
                         <div>
-                            <label htmlFor="register-confirm-password" className="block text-sm font-semibold text-surface-700 mb-2">Confirm Password</label>
+                            <label htmlFor="register-confirm-password" className="block text-sm font-semibold text-surface-400 mb-2">Confirm Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" size={18} />
                                 <input
@@ -166,7 +166,7 @@ export default function Register() {
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+                                    className="w-full pl-10 pr-4 py-3 border border-surface-200 rounded-lg bg-surface-800 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                                     placeholder="Re-enter password"
                                     required
                                     autoComplete="new-password"
@@ -193,7 +193,7 @@ export default function Register() {
                     </form>
 
                     <div className="mt-4 text-center">
-                        <p className="text-sm text-surface-600">
+                        <p className="text-sm text-surface-400">
                             Already have an account?{' '}
                             <Link to="/login" className="text-brand-500 hover:text-brand-600 font-semibold">
                                 Sign in
@@ -210,9 +210,9 @@ export default function Register() {
 
                 {/* Footer Links */}
                 <div className="flex items-center justify-center gap-6 mt-8 text-xs text-surface-500">
-                    <a href="#" className="hover:text-surface-700">Terms of Service</a>
+                    <Link to="/help" className="hover:text-surface-300">Terms of Service</Link>
                     <span>•</span>
-                    <a href="#" className="hover:text-surface-700">Privacy Policy</a>
+                    <Link to="/help" className="hover:text-surface-300">Privacy Policy</Link>
                 </div>
             </div>
         </div>

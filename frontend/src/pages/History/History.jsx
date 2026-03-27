@@ -25,6 +25,7 @@ export default function History() {
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [filter, setFilter] = useState('ALL');
     const [search, setSearch] = useState('');
     const [searchInput, setSearchInput] = useState('');
@@ -32,6 +33,7 @@ export default function History() {
 
     const fetchHistory = useCallback(async () => {
         setLoading(true);
+        setError('');
         try {
             let url = `/history?page=${page}&per_page=${perPage}`;
             if (filter !== 'ALL') {
@@ -45,7 +47,7 @@ export default function History() {
             setTotal(response.data.pagination.total);
             setTotalPages(response.data.pagination.pages);
         } catch (error) {
-            console.error('Failed to fetch history:', error);
+            setError(error.response?.data?.error?.message || 'Failed to load validation history');
         } finally {
             setLoading(false);
         }
@@ -173,6 +175,16 @@ export default function History() {
             {loading ? (
                 <div className="flex flex-col items-center justify-center h-64 bg-surface-900/20 rounded-[2.5rem] border border-surface-800/30">
                     <LoadingSpinner />
+                </div>
+            ) : error ? (
+                <div className="card rounded-[2.5rem] text-center py-20 bg-danger-500/5 border-danger-500/20">
+                    <h3 className="text-xl font-bold text-danger-400">Unable to load history</h3>
+                    <p className="text-surface-400 font-medium mt-2 max-w-sm mx-auto leading-relaxed">
+                        {error}
+                    </p>
+                    <button onClick={fetchHistory} className="btn-primary mt-8 inline-flex">
+                        Retry
+                    </button>
                 </div>
             ) : results.length === 0 ? (
                 <div className="card rounded-[2.5rem] text-center py-20 bg-surface-900/40">

@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import { Skeleton, StatCardSkeleton } from '../../components/Skeleton';
 import AlertMessage from '../../components/AlertMessage';
@@ -16,17 +15,12 @@ import {
 } from 'lucide-react';
 
 export default function InstitutionDashboard() {
-    const { user } = useAuth();
     const { get } = useApi();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchInstitutionData();
-    }, []);
-
-    const fetchInstitutionData = async () => {
+    const fetchInstitutionData = useCallback(async () => {
         try {
             const response = await get('/institution/stats');
             setStats(response.data);
@@ -35,7 +29,11 @@ export default function InstitutionDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [get]);
+
+    useEffect(() => {
+        fetchInstitutionData();
+    }, [fetchInstitutionData]);
 
     if (error) return <AlertMessage type="error" message={error} />;
 

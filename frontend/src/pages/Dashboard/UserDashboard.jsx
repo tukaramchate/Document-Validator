@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useApi } from '../../hooks/useApi';
@@ -26,11 +26,7 @@ export default function UserDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchDashboardData();
-    }, []);
-
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = useCallback(async () => {
         try {
             const [docsData, historyData] = await Promise.all([
                 get('/upload/list?page=1&per_page=50'),
@@ -64,7 +60,11 @@ export default function UserDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [get]);
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, [fetchDashboardData]);
 
     const statCards = [
         { label: 'Total Documents', value: stats.totalDocs, icon: Files, color: 'brand' },

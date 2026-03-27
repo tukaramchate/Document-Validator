@@ -41,12 +41,6 @@ export default function Navbar() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [userMenuOpen]);
 
-    // Close mobile menu on route change
-    useEffect(() => {
-        setMobileMenuOpen(false);
-        setUserMenuOpen(false);
-    }, [location.pathname]);
-
     const handleLogout = () => {
         logout();
         navigate('/login');

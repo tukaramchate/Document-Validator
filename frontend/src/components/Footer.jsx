@@ -18,9 +18,9 @@ export default function Footer() {
             title: 'Resources',
             links: [
                 { label: 'Documentation', path: '/help', external: false },
-                { label: 'API Reference', path: '#', external: false },
-                { label: 'Integration Guide', path: '#', external: false },
-                { label: 'Status Page', path: '#', external: false },
+                { label: 'API Reference', path: '/help', external: false },
+                { label: 'Integration Guide', path: '/help', external: false },
+                { label: 'Status Page', path: '/help', external: false },
             ]
         }
     ];
@@ -107,7 +107,7 @@ export default function Footer() {
 
                             <div className="flex items-center gap-4 pt-2">
                                 {socialLinks.map(({ icon: Icon, path, label }) => (
-                                    <a key={label} href={path} className="text-surface-400 hover:text-surface-200 transition-colors" aria-label={label}>
+                                    <a key={label} href={path} target="_blank" rel="noreferrer" className="text-surface-400 hover:text-surface-200 transition-colors" aria-label={label}>
                                         <Icon size={18} />
                                     </a>
                                 ))}
@@ -122,10 +122,10 @@ export default function Footer() {
                         © {currentYear} Team Firewall_Breakers. All rights reserved.
                     </p>
                     <div className="flex items-center gap-6 text-xs text-surface-400 flex-wrap justify-center sm:justify-end">
-                        <a href="#" className="hover:text-surface-200 transition-colors">Privacy Policy</a>
-                        <a href="#" className="hover:text-surface-200 transition-colors">Terms of Service</a>
-                        <a href="#" className="hover:text-surface-200 transition-colors">Security Policy</a>
-                        <a href="#" className="hover:text-surface-200 transition-colors">Cookie Policy</a>
+                        <Link to="/help" className="hover:text-surface-200 transition-colors">Privacy Policy</Link>
+                        <Link to="/help" className="hover:text-surface-200 transition-colors">Terms of Service</Link>
+                        <Link to="/help" className="hover:text-surface-200 transition-colors">Security Policy</Link>
+                        <Link to="/help" className="hover:text-surface-200 transition-colors">Cookie Policy</Link>
                     </div>
                 </div>
             </div>

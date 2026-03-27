@@ -32,7 +32,7 @@ export default function Upload() {
     const { post } = useApi();
     const navigate = useNavigate();
 
-    const handleFileSelect = async (selectedFile) => {
+    const handleFileSelect = useCallback(async (selectedFile) => {
         setError('');
         setOcrData(null);
         setOcrError('');
@@ -58,12 +58,12 @@ export default function Upload() {
             } else {
                 setOcrData(result);
             }
-        } catch (e) {
+        } catch {
             setOcrError('OCR preview is currently unavailable. Please try again.');
         } finally {
             setOcrLoading(false);
         }
-    };
+    }, [post]);
 
     const handleDrag = useCallback((e) => {
         e.preventDefault();

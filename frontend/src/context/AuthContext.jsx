@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 
 const AuthContext = createContext(null);
@@ -9,15 +9,7 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (token) {
-            fetchProfile();
-        } else {
-            setLoading(false);
-        }
-    }, []);
-
-    const fetchProfile = async () => {
+    const fetchProfile = useCallback(async () => {
         try {
             const response = await api.get('/auth/profile');
             if (!response.data?.data?.user) {
@@ -34,7 +26,15 @@ export function AuthProvider({ children }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (token) {
+            fetchProfile();
+        } else {
+            setLoading(false);
+        }
+    }, [token, fetchProfile]);
 
     const login = async (email, password) => {
         try {

@@ -54,8 +54,12 @@
   /* Surface Colors mapped to root variables */
   --color-surface-50: var(--bg-main);
   --color-surface-100: var(--text-primary);
+  --color-surface-200: color-mix(in srgb, var(--text-primary) 85%, var(--bg-main));
+  --color-surface-300: color-mix(in srgb, var(--text-primary) 65%, var(--bg-main));
   --color-surface-400: var(--text-secondary);
   --color-surface-500: var(--text-muted);
+  --color-surface-600: color-mix(in srgb, var(--text-muted) 88%, var(--bg-main));
+  --color-surface-700: color-mix(in srgb, var(--bg-surface) 70%, black 30%);
   --color-surface-800: var(--bg-surface);
   --color-surface-900: var(--bg-surface);
   --color-surface-950: var(--bg-main);
@@ -81,6 +85,8 @@
   --animate-slide-up: slideUp 0.4s ease-out;
   --animate-slide-in-right: slideInRight 0.3s ease-out;
   --animate-pulse-slow: pulse 3s ease-in-out infinite;
+  --animate-scale-in: scaleIn 0.25s ease-out;
+  --animate-shimmer: shimmer 1.3s linear infinite;
 }
 
 @keyframes fadeIn {
@@ -114,6 +120,28 @@
   100% {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
   }
 }
 

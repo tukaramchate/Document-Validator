@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../context/ToastContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -24,11 +24,7 @@ export default function InstitutionRecords() {
     const [newRecord, setNewRecord] = useState({ name: '', id_number: '', metadata: {} });
     const [bulkJson, setBulkJson] = useState('');
 
-    useEffect(() => {
-        fetchRecords();
-    }, []);
-
-    const fetchRecords = async () => {
+    const fetchRecords = useCallback(async () => {
         try {
             const response = await get('/institution/records');
             setRecords(response.data.records);
@@ -37,7 +33,11 @@ export default function InstitutionRecords() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [get, toast]);
+
+    useEffect(() => {
+        fetchRecords();
+    }, [fetchRecords]);
 
     const handleAddRecord = async (e) => {
         e.preventDefault();

@@ -17,8 +17,8 @@ export default function ProtectedRoute({ children, allowedRoles, loadingTimeout 
         return () => clearTimeout(timer);
     }, [loading, loadingTimeout]);
 
-    if ((loading && !timedOut) || timedOut) {
-        if (timedOut && loading) {
+    if (loading) {
+        if (timedOut) {
             return <Navigate to="/login" replace />;
         }
         return (
