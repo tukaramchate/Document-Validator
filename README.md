@@ -141,3 +141,32 @@ npm run dev
 ## License
 
 See `LICENSE`.
+
+## Validation Job Queue (No Redis/RabbitMQ)
+
+This backend uses a database-backed job queue for document validation, avoiding external dependencies like Redis or RabbitMQ.
+
+### How it works
+- When a user uploads a document, a `ValidationJob` is created in the database with status `QUEUED`.
+- A background worker script (`backend/validation_worker.py`) polls for queued jobs and processes them, running the full validation pipeline.
+- Job status is updated to `PROCESSING`, `COMPLETED`, or `FAILED`.
+- All role-based access and admin/institution approval logic is enforced as before.
+
+### Running the Worker
+1. **Apply DB migration** (after creating the migration file):
+   ```sh
+   flask db upgrade
+   ```
+2. **Start the worker** (in a separate terminal):
+   ```sh
+   python backend/validation_worker.py
+   ```
+
+### Migration
+- The migration file for the `validation_jobs` table is in `backend/migrations/versions/20260330_add_validation_jobs.py`.
+- Run migrations before starting the worker.
+
+### Notes
+- No Redis, RabbitMQ, or external queue is required.
+- The worker can be run as a systemd service, Docker container, or background process.
+- Admins can monitor jobs and results as usual.

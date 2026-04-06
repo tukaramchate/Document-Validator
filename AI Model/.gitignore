@@ -1,0 +1,60 @@
+# ─── Docker ──────────────────────────────────────────────────
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# ─── Virtual Environments ───────────────────────────────────
+.venv/
+venv/
+env/
+
+# ─── IDE ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Environment & Secrets ──────────────────────────────────
+.env
+.env.local
+.env.production
+
+# ─── ML Models (large files) ────────────────────────────────
+saved_models/*.pth
+saved_models/*.pt
+saved_models/*.onnx
+
+# ─── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Test / Coverage ────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# ─── Logs ────────────────────────────────────────────────────
+*.log
+
+# ─── Data (training data is usually not committed) ──────────
+data/real/
+data/fake/
+data/augmented/
+
+# ─── Poppler binaries ───────────────────────────────────────
+poppler/
+
+# ─── Notebooks checkpoints ──────────────────────────────────
+.ipynb_checkpoints/

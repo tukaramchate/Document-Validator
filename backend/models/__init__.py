@@ -8,3 +8,4 @@ from models.document import Document
 from models.result import Result
 from models.institution_record import InstitutionRecord
 from models.token_blacklist import TokenBlacklist
+from models.validation_job import ValidationJob

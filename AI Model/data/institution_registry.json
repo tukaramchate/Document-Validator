@@ -1,0 +1,1087 @@
+{
+  "_description": "Institution registry for academic document validation. Contains 100+ Indian universities with aliases, document types, and known patterns.",
+  "_version": "1.0.0",
+  "_last_updated": "2026-04-06",
+  "institutions": [
+    {
+      "id": "IIT_BOMBAY",
+      "name": "Indian Institute of Technology Bombay",
+      "aliases": ["IIT Bombay", "IITB", "IIT-Bombay", "Indian Institute of Technology, Bombay"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript", "id_card"],
+      "keywords": ["iit bombay", "iitb", "powai", "mumbai"]
+    },
+    {
+      "id": "IIT_DELHI",
+      "name": "Indian Institute of Technology Delhi",
+      "aliases": ["IIT Delhi", "IITD", "IIT-Delhi"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript", "id_card"],
+      "keywords": ["iit delhi", "iitd", "hauz khas"]
+    },
+    {
+      "id": "IIT_MADRAS",
+      "name": "Indian Institute of Technology Madras",
+      "aliases": ["IIT Madras", "IITM", "IIT-Madras"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit madras", "iitm", "chennai"]
+    },
+    {
+      "id": "IIT_KANPUR",
+      "name": "Indian Institute of Technology Kanpur",
+      "aliases": ["IIT Kanpur", "IITK", "IIT-Kanpur"],
+      "city": "Kanpur",
+      "state": "Uttar Pradesh",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit kanpur", "iitk"]
+    },
+    {
+      "id": "IIT_KHARAGPUR",
+      "name": "Indian Institute of Technology Kharagpur",
+      "aliases": ["IIT Kharagpur", "IIT KGP", "IIT-Kharagpur"],
+      "city": "Kharagpur",
+      "state": "West Bengal",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit kharagpur", "iitkgp", "kgp"]
+    },
+    {
+      "id": "IIT_ROORKEE",
+      "name": "Indian Institute of Technology Roorkee",
+      "aliases": ["IIT Roorkee", "IITR", "IIT-Roorkee"],
+      "city": "Roorkee",
+      "state": "Uttarakhand",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit roorkee", "iitr"]
+    },
+    {
+      "id": "IIT_GUWAHATI",
+      "name": "Indian Institute of Technology Guwahati",
+      "aliases": ["IIT Guwahati", "IITG", "IIT-Guwahati"],
+      "city": "Guwahati",
+      "state": "Assam",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit guwahati", "iitg"]
+    },
+    {
+      "id": "IIT_BHU",
+      "name": "Indian Institute of Technology (BHU) Varanasi",
+      "aliases": ["IIT BHU", "IIT (BHU)", "IIT-BHU", "IIT Varanasi"],
+      "city": "Varanasi",
+      "state": "Uttar Pradesh",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit bhu", "iit varanasi", "banaras hindu university"]
+    },
+    {
+      "id": "IIT_HYDERABAD",
+      "name": "Indian Institute of Technology Hyderabad",
+      "aliases": ["IIT Hyderabad", "IITH", "IIT-Hyderabad"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit hyderabad", "iith"]
+    },
+    {
+      "id": "NIT_TRICHY",
+      "name": "National Institute of Technology Tiruchirappalli",
+      "aliases": ["NIT Trichy", "NITT", "NIT-Trichy", "NIT Tiruchirappalli"],
+      "city": "Tiruchirappalli",
+      "state": "Tamil Nadu",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit trichy", "nitt", "tiruchirappalli"]
+    },
+    {
+      "id": "NIT_WARANGAL",
+      "name": "National Institute of Technology Warangal",
+      "aliases": ["NIT Warangal", "NITW", "NIT-Warangal"],
+      "city": "Warangal",
+      "state": "Telangana",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit warangal", "nitw"]
+    },
+    {
+      "id": "NIT_SURATHKAL",
+      "name": "National Institute of Technology Karnataka",
+      "aliases": ["NIT Surathkal", "NITK", "NIT-Karnataka"],
+      "city": "Surathkal",
+      "state": "Karnataka",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit surathkal", "nitk", "nit karnataka"]
+    },
+    {
+      "id": "NIT_ROURKELA",
+      "name": "National Institute of Technology Rourkela",
+      "aliases": ["NIT Rourkela", "NITR", "NIT-Rourkela"],
+      "city": "Rourkela",
+      "state": "Odisha",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit rourkela", "nitr"]
+    },
+    {
+      "id": "NIT_CALICUT",
+      "name": "National Institute of Technology Calicut",
+      "aliases": ["NIT Calicut", "NITC", "NIT-Calicut"],
+      "city": "Calicut",
+      "state": "Kerala",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit calicut", "nitc"]
+    },
+    {
+      "id": "BITS_PILANI",
+      "name": "Birla Institute of Technology and Science Pilani",
+      "aliases": ["BITS Pilani", "BITS", "BITS-Pilani"],
+      "city": "Pilani",
+      "state": "Rajasthan",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["bits pilani", "bits", "birla institute"]
+    },
+    {
+      "id": "BITS_GOA",
+      "name": "BITS Pilani Goa Campus",
+      "aliases": ["BITS Goa", "BITS-Goa"],
+      "city": "Goa",
+      "state": "Goa",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["bits goa", "bits pilani goa"]
+    },
+    {
+      "id": "BITS_HYDERABAD",
+      "name": "BITS Pilani Hyderabad Campus",
+      "aliases": ["BITS Hyderabad", "BITS-Hyderabad"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["bits hyderabad", "bits pilani hyderabad"]
+    },
+    {
+      "id": "DU",
+      "name": "University of Delhi",
+      "aliases": ["Delhi University", "DU", "University of Delhi"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "Central",
+      "document_types": ["marksheet", "degree_certificate", "migration_certificate"],
+      "keywords": ["delhi university", "university of delhi", "du"]
+    },
+    {
+      "id": "JNU",
+      "name": "Jawaharlal Nehru University",
+      "aliases": ["JNU", "Jawaharlal Nehru University"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "Central",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["jnu", "jawaharlal nehru university"]
+    },
+    {
+      "id": "BHU",
+      "name": "Banaras Hindu University",
+      "aliases": ["BHU", "Banaras Hindu University"],
+      "city": "Varanasi",
+      "state": "Uttar Pradesh",
+      "type": "Central",
+      "document_types": ["marksheet", "degree_certificate", "migration_certificate"],
+      "keywords": ["bhu", "banaras hindu university"]
+    },
+    {
+      "id": "AMU",
+      "name": "Aligarh Muslim University",
+      "aliases": ["AMU", "Aligarh Muslim University"],
+      "city": "Aligarh",
+      "state": "Uttar Pradesh",
+      "type": "Central",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["amu", "aligarh muslim university"]
+    },
+    {
+      "id": "MUMBAI_UNIV",
+      "name": "University of Mumbai",
+      "aliases": ["Mumbai University", "University of Mumbai", "Bombay University"],
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate", "migration_certificate"],
+      "keywords": ["university of mumbai", "mumbai university", "bombay university"]
+    },
+    {
+      "id": "PUNE_UNIV",
+      "name": "Savitribai Phule Pune University",
+      "aliases": ["Pune University", "SPPU", "Savitribai Phule Pune University"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["pune university", "sppu", "savitribai phule"]
+    },
+    {
+      "id": "ANNA_UNIV",
+      "name": "Anna University",
+      "aliases": ["Anna University", "AU Chennai"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["anna university", "au chennai"]
+    },
+    {
+      "id": "JNTU_HYD",
+      "name": "Jawaharlal Nehru Technological University Hyderabad",
+      "aliases": ["JNTU Hyderabad", "JNTUH"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["jntu hyderabad", "jntuh"]
+    },
+    {
+      "id": "JNTU_KAKINADA",
+      "name": "Jawaharlal Nehru Technological University Kakinada",
+      "aliases": ["JNTU Kakinada", "JNTUK"],
+      "city": "Kakinada",
+      "state": "Andhra Pradesh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["jntu kakinada", "jntuk"]
+    },
+    {
+      "id": "VTU",
+      "name": "Visvesvaraya Technological University",
+      "aliases": ["VTU", "Visvesvaraya Technological University"],
+      "city": "Belgaum",
+      "state": "Karnataka",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["vtu", "visvesvaraya"]
+    },
+    {
+      "id": "OSMANIA",
+      "name": "Osmania University",
+      "aliases": ["Osmania University", "OU"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["osmania university", "ou hyderabad"]
+    },
+    {
+      "id": "CALICUT_UNIV",
+      "name": "University of Calicut",
+      "aliases": ["Calicut University", "University of Calicut"],
+      "city": "Calicut",
+      "state": "Kerala",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["calicut university", "university of calicut"]
+    },
+    {
+      "id": "KERALA_UNIV",
+      "name": "University of Kerala",
+      "aliases": ["Kerala University", "University of Kerala"],
+      "city": "Thiruvananthapuram",
+      "state": "Kerala",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["kerala university", "university of kerala"]
+    },
+    {
+      "id": "MG_UNIV",
+      "name": "Mahatma Gandhi University",
+      "aliases": ["MG University", "MGU", "Mahatma Gandhi University"],
+      "city": "Kottayam",
+      "state": "Kerala",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["mg university", "mgu", "mahatma gandhi university"]
+    },
+    {
+      "id": "MADRAS_UNIV",
+      "name": "University of Madras",
+      "aliases": ["Madras University", "University of Madras"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["madras university", "university of madras"]
+    },
+    {
+      "id": "CALCUTTA_UNIV",
+      "name": "University of Calcutta",
+      "aliases": ["Calcutta University", "CU", "University of Calcutta"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["calcutta university", "university of calcutta"]
+    },
+    {
+      "id": "JADAVPUR",
+      "name": "Jadavpur University",
+      "aliases": ["Jadavpur University", "JU"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["jadavpur university", "ju kolkata"]
+    },
+    {
+      "id": "BPUT",
+      "name": "Biju Patnaik University of Technology",
+      "aliases": ["BPUT", "Biju Patnaik University"],
+      "city": "Rourkela",
+      "state": "Odisha",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["bput", "biju patnaik university"]
+    },
+    {
+      "id": "UTKAL",
+      "name": "Utkal University",
+      "aliases": ["Utkal University"],
+      "city": "Bhubaneswar",
+      "state": "Odisha",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["utkal university"]
+    },
+    {
+      "id": "UPTU",
+      "name": "Dr. A.P.J. Abdul Kalam Technical University",
+      "aliases": ["AKTU", "UPTU", "Dr APJ Abdul Kalam Technical University"],
+      "city": "Lucknow",
+      "state": "Uttar Pradesh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["aktu", "uptu", "abdul kalam technical university"]
+    },
+    {
+      "id": "GTU",
+      "name": "Gujarat Technological University",
+      "aliases": ["GTU", "Gujarat Technological University"],
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["gtu", "gujarat technological university"]
+    },
+    {
+      "id": "RGPV",
+      "name": "Rajiv Gandhi Proudyogiki Vishwavidyalaya",
+      "aliases": ["RGPV", "Rajiv Gandhi Technological University"],
+      "city": "Bhopal",
+      "state": "Madhya Pradesh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["rgpv", "rajiv gandhi proudyogiki"]
+    },
+    {
+      "id": "RTU",
+      "name": "Rajasthan Technical University",
+      "aliases": ["RTU", "Rajasthan Technical University"],
+      "city": "Kota",
+      "state": "Rajasthan",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["rtu", "rajasthan technical university"]
+    },
+    {
+      "id": "MAKAUT",
+      "name": "Maulana Abul Kalam Azad University of Technology",
+      "aliases": ["MAKAUT", "WBUT", "Maulana Abul Kalam Azad University"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["makaut", "wbut", "maulana abul kalam"]
+    },
+    {
+      "id": "PANJAB_UNIV",
+      "name": "Panjab University",
+      "aliases": ["Panjab University", "PU Chandigarh"],
+      "city": "Chandigarh",
+      "state": "Chandigarh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["panjab university", "pu chandigarh"]
+    },
+    {
+      "id": "PTU",
+      "name": "IK Gujral Punjab Technical University",
+      "aliases": ["PTU", "IK Gujral Punjab Technical University"],
+      "city": "Kapurthala",
+      "state": "Punjab",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["ptu", "ik gujral punjab"]
+    },
+    {
+      "id": "MDU",
+      "name": "Maharshi Dayanand University",
+      "aliases": ["MDU", "Maharshi Dayanand University"],
+      "city": "Rohtak",
+      "state": "Haryana",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["mdu", "maharshi dayanand university"]
+    },
+    {
+      "id": "KUK",
+      "name": "Kurukshetra University",
+      "aliases": ["KUK", "Kurukshetra University"],
+      "city": "Kurukshetra",
+      "state": "Haryana",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["kuk", "kurukshetra university"]
+    },
+    {
+      "id": "HPU",
+      "name": "Himachal Pradesh University",
+      "aliases": ["HPU", "Himachal Pradesh University"],
+      "city": "Shimla",
+      "state": "Himachal Pradesh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["hpu", "himachal pradesh university"]
+    },
+    {
+      "id": "JAMMU_UNIV",
+      "name": "University of Jammu",
+      "aliases": ["Jammu University", "University of Jammu"],
+      "city": "Jammu",
+      "state": "Jammu & Kashmir",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["jammu university", "university of jammu"]
+    },
+    {
+      "id": "KASHMIR_UNIV",
+      "name": "University of Kashmir",
+      "aliases": ["Kashmir University", "University of Kashmir"],
+      "city": "Srinagar",
+      "state": "Jammu & Kashmir",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["kashmir university", "university of kashmir"]
+    },
+    {
+      "id": "GAUHATI_UNIV",
+      "name": "Gauhati University",
+      "aliases": ["Gauhati University", "GU"],
+      "city": "Guwahati",
+      "state": "Assam",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["gauhati university", "gu guwahati"]
+    },
+    {
+      "id": "DIBRUGARH_UNIV",
+      "name": "Dibrugarh University",
+      "aliases": ["Dibrugarh University"],
+      "city": "Dibrugarh",
+      "state": "Assam",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["dibrugarh university"]
+    },
+    {
+      "id": "LUCKNOW_UNIV",
+      "name": "University of Lucknow",
+      "aliases": ["Lucknow University", "University of Lucknow"],
+      "city": "Lucknow",
+      "state": "Uttar Pradesh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["lucknow university", "university of lucknow"]
+    },
+    {
+      "id": "ALLAHABAD_UNIV",
+      "name": "University of Allahabad",
+      "aliases": ["Allahabad University", "University of Allahabad"],
+      "city": "Prayagraj",
+      "state": "Uttar Pradesh",
+      "type": "Central",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["allahabad university", "university of allahabad"]
+    },
+    {
+      "id": "PATNA_UNIV",
+      "name": "Patna University",
+      "aliases": ["Patna University"],
+      "city": "Patna",
+      "state": "Bihar",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["patna university"]
+    },
+    {
+      "id": "RANCHI_UNIV",
+      "name": "Ranchi University",
+      "aliases": ["Ranchi University"],
+      "city": "Ranchi",
+      "state": "Jharkhand",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["ranchi university"]
+    },
+    {
+      "id": "MANIPAL",
+      "name": "Manipal Academy of Higher Education",
+      "aliases": ["Manipal University", "MAHE", "Manipal"],
+      "city": "Manipal",
+      "state": "Karnataka",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["manipal", "mahe", "manipal academy"]
+    },
+    {
+      "id": "SRM",
+      "name": "SRM Institute of Science and Technology",
+      "aliases": ["SRM University", "SRMIST", "SRM"],
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["srm", "srmist", "srm university"]
+    },
+    {
+      "id": "VIT",
+      "name": "Vellore Institute of Technology",
+      "aliases": ["VIT", "VIT University", "VIT Vellore"],
+      "city": "Vellore",
+      "state": "Tamil Nadu",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["vit", "vit university", "vellore institute"]
+    },
+    {
+      "id": "AMITY",
+      "name": "Amity University",
+      "aliases": ["Amity University", "Amity"],
+      "city": "Noida",
+      "state": "Uttar Pradesh",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["amity university", "amity"]
+    },
+    {
+      "id": "LPU",
+      "name": "Lovely Professional University",
+      "aliases": ["LPU", "Lovely Professional University"],
+      "city": "Phagwara",
+      "state": "Punjab",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["lpu", "lovely professional university"]
+    },
+    {
+      "id": "CHITKARA",
+      "name": "Chitkara University",
+      "aliases": ["Chitkara University", "Chitkara"],
+      "city": "Rajpura",
+      "state": "Punjab",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["chitkara university", "chitkara"]
+    },
+    {
+      "id": "CHANDIGARH_UNIV",
+      "name": "Chandigarh University",
+      "aliases": ["Chandigarh University", "CU Gharuan"],
+      "city": "Gharuan",
+      "state": "Punjab",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["chandigarh university", "cu gharuan"]
+    },
+    {
+      "id": "SHIV_NADAR",
+      "name": "Shiv Nadar University",
+      "aliases": ["Shiv Nadar University", "SNU"],
+      "city": "Greater Noida",
+      "state": "Uttar Pradesh",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["shiv nadar university", "snu"]
+    },
+    {
+      "id": "THAPAR",
+      "name": "Thapar Institute of Engineering and Technology",
+      "aliases": ["Thapar University", "TIET", "Thapar"],
+      "city": "Patiala",
+      "state": "Punjab",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["thapar", "tiet", "thapar university"]
+    },
+    {
+      "id": "IIIT_HYD",
+      "name": "International Institute of Information Technology Hyderabad",
+      "aliases": ["IIIT Hyderabad", "IIITH"],
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "type": "Public-Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iiit hyderabad", "iiith"]
+    },
+    {
+      "id": "IIIT_BANGALORE",
+      "name": "International Institute of Information Technology Bangalore",
+      "aliases": ["IIIT Bangalore", "IIITB"],
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "type": "Public-Private",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iiit bangalore", "iiitb"]
+    },
+    {
+      "id": "IIIT_DELHI",
+      "name": "Indraprastha Institute of Information Technology Delhi",
+      "aliases": ["IIIT Delhi", "IIITD"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iiit delhi", "iiitd", "indraprastha"]
+    },
+    {
+      "id": "CHRIST",
+      "name": "Christ University",
+      "aliases": ["Christ University", "Christ (Deemed to be University)"],
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["christ university", "christ deemed"]
+    },
+    {
+      "id": "SYMBIOSIS",
+      "name": "Symbiosis International University",
+      "aliases": ["Symbiosis", "SIU"],
+      "city": "Pune",
+      "state": "Maharashtra",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["symbiosis", "siu"]
+    },
+    {
+      "id": "SHARDA",
+      "name": "Sharda University",
+      "aliases": ["Sharda University"],
+      "city": "Greater Noida",
+      "state": "Uttar Pradesh",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["sharda university"]
+    },
+    {
+      "id": "GALGOTIAS",
+      "name": "Galgotias University",
+      "aliases": ["Galgotias University", "GU"],
+      "city": "Greater Noida",
+      "state": "Uttar Pradesh",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["galgotias university"]
+    },
+    {
+      "id": "BENNETT",
+      "name": "Bennett University",
+      "aliases": ["Bennett University"],
+      "city": "Greater Noida",
+      "state": "Uttar Pradesh",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["bennett university"]
+    },
+    {
+      "id": "JIIT",
+      "name": "Jaypee Institute of Information Technology",
+      "aliases": ["JIIT", "Jaypee Institute"],
+      "city": "Noida",
+      "state": "Uttar Pradesh",
+      "type": "Private",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["jiit", "jaypee institute"]
+    },
+    {
+      "id": "DTU",
+      "name": "Delhi Technological University",
+      "aliases": ["DTU", "Delhi Technological University", "DCE"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["dtu", "delhi technological university", "dce"]
+    },
+    {
+      "id": "NSUT",
+      "name": "Netaji Subhas University of Technology",
+      "aliases": ["NSUT", "Netaji Subhas University", "NSIT"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["nsut", "nsit", "netaji subhas"]
+    },
+    {
+      "id": "GGSIPU",
+      "name": "Guru Gobind Singh Indraprastha University",
+      "aliases": ["GGSIPU", "IP University", "IPU"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["ggsipu", "ip university", "ipu"]
+    },
+    {
+      "id": "IGNOU",
+      "name": "Indira Gandhi National Open University",
+      "aliases": ["IGNOU", "Indira Gandhi National Open University"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "Central",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["ignou", "indira gandhi national open"]
+    },
+    {
+      "id": "NAGPUR_UNIV",
+      "name": "Rashtrasant Tukadoji Maharaj Nagpur University",
+      "aliases": ["Nagpur University", "RTMNU"],
+      "city": "Nagpur",
+      "state": "Maharashtra",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["nagpur university", "rtmnu"]
+    },
+    {
+      "id": "SHIVAJI_UNIV",
+      "name": "Shivaji University",
+      "aliases": ["Shivaji University"],
+      "city": "Kolhapur",
+      "state": "Maharashtra",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["shivaji university", "kolhapur"]
+    },
+    {
+      "id": "BHARATHIAR",
+      "name": "Bharathiar University",
+      "aliases": ["Bharathiar University"],
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["bharathiar university", "coimbatore"]
+    },
+    {
+      "id": "BANGALORE_UNIV",
+      "name": "Bangalore University",
+      "aliases": ["Bangalore University", "BU"],
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["bangalore university"]
+    },
+    {
+      "id": "MYSORE_UNIV",
+      "name": "University of Mysore",
+      "aliases": ["Mysore University", "University of Mysore"],
+      "city": "Mysore",
+      "state": "Karnataka",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["mysore university", "university of mysore"]
+    },
+    {
+      "id": "ANDHRA_UNIV",
+      "name": "Andhra University",
+      "aliases": ["Andhra University", "AU Vizag"],
+      "city": "Visakhapatnam",
+      "state": "Andhra Pradesh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["andhra university", "au vizag"]
+    },
+    {
+      "id": "SV_UNIV",
+      "name": "Sri Venkateswara University",
+      "aliases": ["SV University", "SVU", "Sri Venkateswara University"],
+      "city": "Tirupati",
+      "state": "Andhra Pradesh",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["sv university", "svu", "sri venkateswara"]
+    },
+    {
+      "id": "WBSU",
+      "name": "West Bengal State University",
+      "aliases": ["WBSU", "West Bengal State University"],
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "type": "State",
+      "document_types": ["marksheet", "degree_certificate"],
+      "keywords": ["wbsu", "west bengal state university"]
+    },
+    {
+      "id": "NIT_DURGAPUR",
+      "name": "National Institute of Technology Durgapur",
+      "aliases": ["NIT Durgapur", "NITDGP"],
+      "city": "Durgapur",
+      "state": "West Bengal",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit durgapur", "nitdgp"]
+    },
+    {
+      "id": "NIT_PATNA",
+      "name": "National Institute of Technology Patna",
+      "aliases": ["NIT Patna", "NITP"],
+      "city": "Patna",
+      "state": "Bihar",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit patna", "nitp"]
+    },
+    {
+      "id": "NIT_JAMSHEDPUR",
+      "name": "National Institute of Technology Jamshedpur",
+      "aliases": ["NIT Jamshedpur", "NITJSR"],
+      "city": "Jamshedpur",
+      "state": "Jharkhand",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit jamshedpur", "nitjsr"]
+    },
+    {
+      "id": "NIT_SILCHAR",
+      "name": "National Institute of Technology Silchar",
+      "aliases": ["NIT Silchar", "NITS"],
+      "city": "Silchar",
+      "state": "Assam",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit silchar", "nits"]
+    },
+    {
+      "id": "NIT_AGARTALA",
+      "name": "National Institute of Technology Agartala",
+      "aliases": ["NIT Agartala", "NITA"],
+      "city": "Agartala",
+      "state": "Tripura",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit agartala", "nita"]
+    },
+    {
+      "id": "NIT_SRINAGAR",
+      "name": "National Institute of Technology Srinagar",
+      "aliases": ["NIT Srinagar"],
+      "city": "Srinagar",
+      "state": "Jammu & Kashmir",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit srinagar"]
+    },
+    {
+      "id": "NIT_KURUKSHETRA",
+      "name": "National Institute of Technology Kurukshetra",
+      "aliases": ["NIT Kurukshetra", "NITKKR"],
+      "city": "Kurukshetra",
+      "state": "Haryana",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit kurukshetra", "nitkkr"]
+    },
+    {
+      "id": "NIT_HAMIRPUR",
+      "name": "National Institute of Technology Hamirpur",
+      "aliases": ["NIT Hamirpur", "NITH"],
+      "city": "Hamirpur",
+      "state": "Himachal Pradesh",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit hamirpur", "nith"]
+    },
+    {
+      "id": "NIT_JALANDHAR",
+      "name": "Dr B R Ambedkar National Institute of Technology Jalandhar",
+      "aliases": ["NIT Jalandhar", "NITJ"],
+      "city": "Jalandhar",
+      "state": "Punjab",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["nit jalandhar", "nitj"]
+    },
+    {
+      "id": "NIT_BHOPAL",
+      "name": "Maulana Azad National Institute of Technology Bhopal",
+      "aliases": ["MANIT", "NIT Bhopal"],
+      "city": "Bhopal",
+      "state": "Madhya Pradesh",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["manit", "nit bhopal", "maulana azad nit"]
+    },
+    {
+      "id": "NIT_ALLAHABAD",
+      "name": "Motilal Nehru National Institute of Technology Allahabad",
+      "aliases": ["MNNIT", "NIT Allahabad"],
+      "city": "Prayagraj",
+      "state": "Uttar Pradesh",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["mnnit", "nit allahabad", "motilal nehru"]
+    },
+    {
+      "id": "NIT_NAGPUR",
+      "name": "Visvesvaraya National Institute of Technology",
+      "aliases": ["VNIT", "NIT Nagpur"],
+      "city": "Nagpur",
+      "state": "Maharashtra",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["vnit", "nit nagpur"]
+    },
+    {
+      "id": "NIT_JAIPUR",
+      "name": "Malaviya National Institute of Technology Jaipur",
+      "aliases": ["MNIT", "NIT Jaipur"],
+      "city": "Jaipur",
+      "state": "Rajasthan",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["mnit", "nit jaipur", "malaviya"]
+    },
+    {
+      "id": "NIT_SURAT",
+      "name": "Sardar Vallabhbhai National Institute of Technology",
+      "aliases": ["SVNIT", "NIT Surat"],
+      "city": "Surat",
+      "state": "Gujarat",
+      "type": "NIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["svnit", "nit surat"]
+    },
+    {
+      "id": "IIT_INDORE",
+      "name": "Indian Institute of Technology Indore",
+      "aliases": ["IIT Indore", "IITI"],
+      "city": "Indore",
+      "state": "Madhya Pradesh",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit indore", "iiti"]
+    },
+    {
+      "id": "IIT_MANDI",
+      "name": "Indian Institute of Technology Mandi",
+      "aliases": ["IIT Mandi"],
+      "city": "Mandi",
+      "state": "Himachal Pradesh",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit mandi"]
+    },
+    {
+      "id": "IIT_PATNA",
+      "name": "Indian Institute of Technology Patna",
+      "aliases": ["IIT Patna", "IITP"],
+      "city": "Patna",
+      "state": "Bihar",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit patna", "iitp"]
+    },
+    {
+      "id": "IIT_BHUBANESWAR",
+      "name": "Indian Institute of Technology Bhubaneswar",
+      "aliases": ["IIT Bhubaneswar", "IITBBS"],
+      "city": "Bhubaneswar",
+      "state": "Odisha",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit bhubaneswar", "iitbbs"]
+    },
+    {
+      "id": "IIT_ROPAR",
+      "name": "Indian Institute of Technology Ropar",
+      "aliases": ["IIT Ropar", "IITRPR"],
+      "city": "Ropar",
+      "state": "Punjab",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit ropar", "iitrpr"]
+    },
+    {
+      "id": "IIT_JODHPUR",
+      "name": "Indian Institute of Technology Jodhpur",
+      "aliases": ["IIT Jodhpur", "IITJ"],
+      "city": "Jodhpur",
+      "state": "Rajasthan",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit jodhpur", "iitj"]
+    },
+    {
+      "id": "IIT_GANDHINAGAR",
+      "name": "Indian Institute of Technology Gandhinagar",
+      "aliases": ["IIT Gandhinagar", "IITGN"],
+      "city": "Gandhinagar",
+      "state": "Gujarat",
+      "type": "IIT",
+      "document_types": ["marksheet", "degree_certificate", "transcript"],
+      "keywords": ["iit gandhinagar", "iitgn"]
+    },
+    {
+      "id": "CBSE",
+      "name": "Central Board of Secondary Education",
+      "aliases": ["CBSE", "Central Board of Secondary Education"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "Board",
+      "document_types": ["marksheet"],
+      "keywords": ["cbse", "central board of secondary education"]
+    },
+    {
+      "id": "ICSE",
+      "name": "Council for the Indian School Certificate Examinations",
+      "aliases": ["ICSE", "ISC", "CISCE"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "Board",
+      "document_types": ["marksheet"],
+      "keywords": ["icse", "isc", "cisce"]
+    },
+    {
+      "id": "NIOS",
+      "name": "National Institute of Open Schooling",
+      "aliases": ["NIOS"],
+      "city": "New Delhi",
+      "state": "Delhi",
+      "type": "Board",
+      "document_types": ["marksheet"],
+      "keywords": ["nios", "national institute of open schooling"]
+    }
+  ]
+}
