@@ -27,35 +27,57 @@ export default function UserDashboard() {
     const [error, setError] = useState('');
 
     const fetchDashboardData = useCallback(async () => {
+        setLoading(true);
+        setError('');
         try {
-            const [docsData, historyData] = await Promise.all([
+            const [docsResult, historyResult] = await Promise.allSettled([
                 get('/upload/list?page=1&per_page=50'),
                 get('/history?page=1&per_page=50'),
             ]);
 
-            const results = historyData.data.results;
+            const docsData = docsResult.status === 'fulfilled' ? docsResult.value : null;
+            const historyData = historyResult.status === 'fulfilled' ? historyResult.value : null;
+
+            const results = historyData?.data?.results || [];
 
             const authentic = results.filter(r => r.verdict === 'AUTHENTIC').length;
             const suspicious = results.filter(r => r.verdict === 'SUSPICIOUS').length;
             const fake = results.filter(r => r.verdict === 'FAKE').length;
 
             setStats({
-                totalDocs: docsData.data.pagination.total,
-                validated: historyData.data.pagination.total,
+                totalDocs: docsData?.data?.pagination?.total || 0,
+                validated: historyData?.data?.pagination?.total || 0,
                 authentic,
                 suspicious,
                 fake,
             });
 
             setRecentResults(results.slice(0, 5));
-        } catch (err) {
-            const errorMsg = err.response?.data?.error?.message || 'Failed to load dashboard data';
-            const errorCode = err.response?.data?.error?.code;
+            // Show a warning only if one or more requests failed, but keep rendering available data.
+            if (docsResult.status === 'rejected' || historyResult.status === 'rejected') {
+                const docsError = docsResult.status === 'rejected' ? docsResult.reason : null;
+                const historyError = historyResult.status === 'rejected' ? historyResult.reason : null;
+                const sourceError = docsError || historyError;
+                const errorCode = sourceError?.response?.data?.error?.code;
+                const isNetworkError = !sourceError?.response;
 
+                if (errorCode === 'USAGE_LIMIT_REACHED') {
+                    setError('You have reached your 10-validation limit. Please upgrade to premium for unlimited access.');
+                } else if (isNetworkError) {
+                    setError('Backend service is unavailable. Please start the backend on http://localhost:5000 and refresh.');
+                } else {
+                    setError(sourceError?.response?.data?.error?.message || sourceError?.message || 'Failed to load dashboard data');
+                }
+            }
+        } catch (err) {
+            const errorCode = err.response?.data?.error?.code;
+            const isNetworkError = !err.response;
             if (errorCode === 'USAGE_LIMIT_REACHED') {
                 setError('You have reached your 10-validation limit. Please upgrade to premium for unlimited access.');
+            } else if (isNetworkError) {
+                setError('Backend service is unavailable. Please start the backend on http://localhost:5000 and refresh.');
             } else {
-                setError(errorMsg);
+                setError(err.response?.data?.error?.message || err.message || 'Failed to load dashboard data');
             }
         } finally {
             setLoading(false);

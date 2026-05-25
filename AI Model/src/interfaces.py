@@ -51,7 +51,7 @@ class DocumentSubType(str, Enum):
 @dataclass
 class ExtractionResult:
     """Output of an extraction strategy."""
-    fields: dict[str, Any]
+    fields: dict[str, Any] = field(default_factory=dict)
     raw_text: str = ""
     confidence: float = 0.0
     strategy_name: str = ""
@@ -117,9 +117,16 @@ class PipelineResult:
     document_classification: ClassificationResult = field(default_factory=ClassificationResult)
     format_validation: FormatValidationResult = field(default_factory=FormatValidationResult)
     ocr_result: ExtractionResult = field(default_factory=ExtractionResult)
+    format_prediction: dict = field(default_factory=lambda: {
+        "institution": None,
+        "confidence": 0.0,
+        "scores": {},
+        "is_available": False,
+    })
     flags: dict[str, bool] = field(default_factory=lambda: {
         "requires_manual_review": False,
         "potential_forgery": False,
+        "format_mismatch": False,
     })
 
     def to_dict(self) -> dict[str, Any]:
@@ -133,6 +140,7 @@ class PipelineResult:
                 "confidence": self.cnn_result.confidence,
                 "is_mock": self.cnn_result.is_mock,
             },
+            "format_prediction": self.format_prediction,
             "institution_recognition": {
                 "university_id": self.institution_recognition.university_id,
                 "university_name": self.institution_recognition.university_name,

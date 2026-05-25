@@ -1,0 +1,10 @@
+{
+  "class_map": {
+    "0": "BNMIT",
+    "1": "GHRCEM",
+    "2": "SPPU",
+    "3": "digilocker"
+  },
+  "num_classes": 4,
+  "best_val_acc": 0.9714
+}

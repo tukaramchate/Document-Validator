@@ -45,7 +45,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             # we just ensure timing is logged.
             duration_ms = (time.monotonic() - start_time) * 1000
             logger.error(
-                f"{request.method} {request.url.path} → 500 "
+                f"{request.method} {request.url.path} -> 500 "
                 f"({duration_ms:.1f}ms) [rid={request_id}]"
             )
             raise
@@ -59,7 +59,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         # Log — skip noisy health checks
         if request.url.path != "/health":
             logger.info(
-                f"{request.method} {request.url.path} → {response.status_code} "
+                f"{request.method} {request.url.path} -> {response.status_code} "
                 f"({duration_ms:.1f}ms) [rid={request_id}]"
             )
 

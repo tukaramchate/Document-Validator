@@ -1,7 +1,7 @@
 import os
 import logging
 from flask import Blueprint, request, send_file
-from app import limiter
+from extensions import limiter
 from services.validation_service import validate_document, get_result, get_validation_history, revalidate_document, preview_ocr
 from services.report_service import generate_validation_report
 from middleware.auth_middleware import token_required

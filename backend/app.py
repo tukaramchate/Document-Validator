@@ -37,9 +37,17 @@ def create_app(config_name='default'):
     db.init_app(app)
     Migrate(app, db)
     limiter.init_app(app)
+    cors_origins = app.config.get('CORS_ORIGINS')
+    if cors_origins is None:
+        if app.config.get('DEBUG'):
+            cors_origins = ["*"]
+        else:
+            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+            cors_origins = [frontend_url]
+
     CORS(app, resources={
         r"/api/*": {
-            "origins": app.config.get('CORS_ORIGINS', ["*"]),
+            "origins": cors_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization", "Accept", "X-Requested-With"]
         }
@@ -81,7 +89,7 @@ def create_app(config_name='default'):
     def after_request_logging(response):
         duration = time.time() - getattr(g, 'request_start_time', time.time())
         logger.info(
-            f'{request.method} {request.path} → {response.status_code} ({duration:.3f}s)'
+            f'{request.method} {request.path} -> {response.status_code} ({duration:.3f}s)'
         )
         return response
 

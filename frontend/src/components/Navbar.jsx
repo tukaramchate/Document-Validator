@@ -71,12 +71,12 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link to="/dashboard" className="flex items-center gap-2.5 group" aria-label="VeriAcd Home">
+                    <Link to="/dashboard" className="flex items-center gap-2.5 group" aria-label="VeriAcad Home">
                         <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all duration-300">
                             <ShieldCheck className="text-white w-5 h-5" />
                         </div>
                         <span className="text-lg font-bold bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent hidden sm:block">
-                            VeriAcd
+                            VeriAcad
                         </span>
                     </Link>
 

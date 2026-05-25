@@ -20,7 +20,7 @@ export default function AuthBrandPanel() {
                             <ShieldCheck className="text-white" size={24} />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold">VeriAcd</h1>
+                            <h1 className="text-xl font-bold">VeriAcad</h1>
                             <p className="text-sm text-white/80">AI-Powered Document Verification</p>
                         </div>
                     </div>

@@ -113,7 +113,7 @@ export default function InstitutionDashboard() {
                         </div>
                         <h2 className="text-2xl font-black text-surface-100 mb-4">Verification Truth Data</h2>
                         <p className="text-surface-400 font-medium mb-10 max-w-sm leading-relaxed">
-                            Upload your official student or employee records to enable seamless AI-powered verification across the VeriAcd network.
+                            Upload your official student or employee records to enable seamless AI-powered verification across the VeriAcad network.
                         </p>
                         <div className="flex gap-4">
                             <Link to="/institution/records" className="btn-primary px-8 py-3 rounded-xl font-bold">

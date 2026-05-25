@@ -118,20 +118,29 @@ async def health():
     Health check endpoint with component status.
 
     Returns service version, CNN model state, Gemini API status,
-    and institution registry count.
+    institution registry count, and Format Classifier status.
     """
     components = {
-        "cnn_model": "loaded" if hasattr(app.state, "validator") else "not_loaded",
-        "gemini_api": "configured" if os.getenv("GEMINI_API_KEY") else "not_configured",
+        "cnn_model":    "loaded" if hasattr(app.state, "validator") else "not_loaded",
+        "gemini_api":   "configured" if os.getenv("GEMINI_API_KEY") else "not_configured",
+        "format_model": "not_loaded",
     }
 
     if hasattr(app.state, "validator"):
         validator = app.state.validator
-        components["cnn_mock_mode"] = str(validator._cnn_is_mock)
-        components["institutions_loaded"] = str(validator._institution_recognizer.institution_count)
+        components["cnn_mock_mode"]         = str(validator._cnn_is_mock)
+        components["institutions_loaded"]   = str(validator._institution_recognizer.institution_count)
+        # Format classifier
+        fc = validator._format_factory
+        if fc.is_loaded:
+            components["format_model"]    = "loaded"
+            components["format_classes"]  = ", ".join(fc.classes)
+        else:
+            components["format_model"]    = "not_loaded"
 
     return HealthResponse(
         status="ok",
         service="Document Validator AI API v3.0",
         components=components,
     )
+

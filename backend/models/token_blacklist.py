@@ -20,8 +20,9 @@ class TokenBlacklist(db.Model):
     @staticmethod
     def is_token_revoked(token_string):
         """Check whether a token has been revoked."""
+        from sqlalchemy import exists
         return db.session.query(
-            TokenBlacklist.query.filter_by(jti=token_string).exists()
+            exists().where(TokenBlacklist.jti == token_string)
         ).scalar()
 
     @staticmethod

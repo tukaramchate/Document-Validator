@@ -32,7 +32,8 @@ export default function Results() {
         const fetchResults = async () => {
             try {
                 const response = await get(`/results/${docId}`);
-                setResult(response.data.result);
+                const payload = response?.data || response;
+                setResult(payload?.result || null);
             } catch (err) {
                 setError(err.response?.data?.error?.message || 'Failed to load results');
             } finally {
@@ -57,6 +58,18 @@ export default function Results() {
                 <Link to="/upload" className="btn-primary inline-flex items-center gap-2">
                     <ArrowLeft size={18} />
                     <span>Back to Upload</span>
+                </Link>
+            </div>
+        );
+    }
+
+    if (!result) {
+        return (
+            <div className="text-center py-16 animate-fade-in space-y-4">
+                <AlertMessage type="error" message="Result data is unavailable for this document." />
+                <Link to="/history" className="btn-primary inline-flex items-center gap-2">
+                    <ArrowLeft size={18} />
+                    <span>Back to History</span>
                 </Link>
             </div>
         );

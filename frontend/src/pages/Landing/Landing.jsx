@@ -93,7 +93,7 @@ export default function Landing() {
                             <ShieldCheck className="text-white w-5 h-5" />
                         </div>
                         <span className="text-lg font-bold bg-gradient-to-r from-brand-400 to-brand-200 bg-clip-text text-transparent">
-                            VeriAcd
+                            VeriAcad
                         </span>
                     </Link>
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -130,7 +130,7 @@ export default function Landing() {
                     </h1>
 
                     <p className="mt-8 text-lg sm:text-xl text-surface-400 max-w-2xl mx-auto leading-relaxed animate-fade-in font-medium">
-                        VeriAcd provides instant, AI-powered document verification for academic and professional credentials. Fast, secure, and built for maximum integrity.
+                        VeriAcad provides instant, AI-powered document verification for academic and professional credentials. Fast, secure, and built for maximum integrity.
                     </p>
 
                     <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in">

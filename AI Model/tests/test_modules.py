@@ -250,3 +250,66 @@ class TestCNNModelFactory:
         archs = CNNModelFactory.available_architectures()
         assert "resnet18_transfer" in archs
         assert "custom_cnn" in archs
+
+
+class TestFormatClassifierFactory:
+    """Tests for the Institution-Specific Format Classifier."""
+
+    def test_missing_model_skipped_gracefully(self):
+        """allow_missing=True should not raise, just return False."""
+        from src.cnn.model_factory import FormatClassifierFactory
+        factory = FormatClassifierFactory(model_path="nonexistent_format.pth")
+        result = factory.load(allow_missing=True)
+        assert result is False
+        assert factory.is_loaded is False
+
+    def test_missing_model_strict_raises(self):
+        """allow_missing=False should raise ModelNotFoundError."""
+        from src.cnn.model_factory import FormatClassifierFactory
+        from src.exceptions import ModelNotFoundError
+        factory = FormatClassifierFactory(model_path="nonexistent_format.pth")
+        with pytest.raises(ModelNotFoundError):
+            factory.load(allow_missing=False)
+
+    def test_loads_trained_model(self):
+        """Should load the trained format_classifier_v1.pth successfully."""
+        from src.cnn.model_factory import FormatClassifierFactory
+        factory = FormatClassifierFactory()
+        loaded = factory.load(allow_missing=True)
+        if not loaded:
+            pytest.skip("format_classifier_v1.pth not present — run train_format_model.py first")
+        assert factory.is_loaded is True
+        assert len(factory.classes) == 4
+        assert "BNMIT" in factory.classes
+
+    def test_predict_returns_correct_keys(self, fake_image_pil):
+        """predict() should always return the four expected keys."""
+        from src.cnn.model_factory import FormatClassifierFactory
+        factory = FormatClassifierFactory()
+        factory.load(allow_missing=True)
+        result = factory.predict(fake_image_pil)
+        assert "institution" in result
+        assert "confidence" in result
+        assert "scores" in result
+        assert "is_available" in result
+
+    def test_predict_confidence_in_range(self, fake_image_pil):
+        """Predicted confidence should be between 0 and 1."""
+        from src.cnn.model_factory import FormatClassifierFactory
+        factory = FormatClassifierFactory()
+        factory.load(allow_missing=True)
+        result = factory.predict(fake_image_pil)
+        if result["is_available"]:
+            assert 0.0 <= result["confidence"] <= 1.0
+            for score in result["scores"].values():
+                assert 0.0 <= score <= 1.0
+
+    def test_predict_when_not_loaded_returns_unavailable(self, fake_image_pil):
+        """predict() on an unloaded factory must return is_available=False safely."""
+        from src.cnn.model_factory import FormatClassifierFactory
+        factory = FormatClassifierFactory(model_path="nonexistent.pth")
+        # Do not call load() — simulate cold/unloaded state
+        result = factory.predict(fake_image_pil)
+        assert result["is_available"] is False
+        assert result["institution"] is None
+        assert result["confidence"] == 0.0

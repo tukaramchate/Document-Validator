@@ -25,9 +25,9 @@ def register_institution():
 
 
 @auth_bp.route('/register/admin', methods=['POST'])
+@limiter.limit('10 per minute')
 @token_required
 @admin_required
-@limiter.limit('10 per minute')
 def register_admin(current_user):
     """Register a new admin. Only existing admins can create new admins."""
     return _handle_registration('admin')

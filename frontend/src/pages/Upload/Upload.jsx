@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
 import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE_LABEL } from '../../utils/constants';
 import { validateFile, formatFileSize } from '../../utils/validators';
@@ -29,13 +29,16 @@ export default function Upload() {
     const [ocrData, setOcrData] = useState(null);
     const [ocrLoading, setOcrLoading] = useState(false);
     const [ocrError, setOcrError] = useState('');
+    const [validationResult, setValidationResult] = useState(null);
+    const [validatedDocId, setValidatedDocId] = useState(null);
     const { post } = useApi();
-    const navigate = useNavigate();
 
     const handleFileSelect = useCallback(async (selectedFile) => {
         setError('');
         setOcrData(null);
         setOcrError('');
+        setValidationResult(null);
+        setValidatedDocId(null);
         if (!selectedFile) return;
         const validationError = validateFile(selectedFile);
         if (validationError) {
@@ -52,7 +55,7 @@ export default function Upload() {
             const response = await post('/ocr/preview', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            const result = response.data.ocr;
+            const result = (response.data || response).ocr;
             if (result.error) {
                 setOcrError(result.error);
             } else {
@@ -101,16 +104,28 @@ export default function Upload() {
                 },
             });
 
-            const docId = uploadResponse.data.document.id;
+            const uploadData = uploadResponse.data || uploadResponse;
+            const docId = uploadData?.document?.id;
+            if (!docId) {
+                throw new Error('Upload response did not include document id');
+            }
+
             setUploading(false);
             setValidating(true);
 
-            await post(`/validate/${docId}`);
-            navigate(`/results/${docId}`);
+            const validateResponse = await post(`/validate/${docId}`, null, { timeout: 180000 });
+            const validateData = validateResponse.data || validateResponse;
+
+            setValidationResult(validateData?.result || null);
+            setValidatedDocId(docId);
+            setValidating(false);
         } catch (err) {
             const code = err.response?.data?.error?.code;
+            const isTimeout = err.code === 'ECONNABORTED' || (err.message || '').toLowerCase().includes('timeout');
             if (code === 'USAGE_LIMIT_REACHED') {
                 setError('You have reached your 10-document validation limit. Please upgrade to continue.');
+            } else if (isTimeout) {
+                setError('Validation is taking longer than expected. Please try again in a moment or start the AI service on port 8001.');
             } else {
                 setError(err.response?.data?.error?.message || 'Upload failed');
             }
@@ -326,6 +341,65 @@ export default function Upload() {
                     </>
                 )}
             </button>
+
+            {validationResult && (
+                <div className="card rounded-[2rem] p-8 border-brand-500/20 bg-brand-500/5 animate-fade-in space-y-6">
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-widest text-surface-500 font-black">Validation Complete</p>
+                            <h3 className="text-xl font-black text-surface-100 mt-1">Result Summary</h3>
+                        </div>
+                        <span
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${validationResult.verdict === 'AUTHENTIC'
+                                ? 'bg-success-500/15 text-success-400 border border-success-500/30'
+                                : validationResult.verdict === 'FAKE'
+                                    ? 'bg-danger-500/15 text-danger-400 border border-danger-500/30'
+                                    : 'bg-warning-500/15 text-warning-400 border border-warning-500/30'
+                                }`}
+                        >
+                            {validationResult.verdict || 'SUSPICIOUS'}
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="rounded-xl bg-surface-900/60 p-4">
+                            <p className="text-[10px] uppercase tracking-widest text-surface-500 font-black">Final</p>
+                            <p className="text-2xl font-black text-brand-300 mt-2">
+                                {((validationResult.scores?.final_score || 0) * 100).toFixed(1)}%
+                            </p>
+                        </div>
+                        <div className="rounded-xl bg-surface-900/60 p-4">
+                            <p className="text-[10px] uppercase tracking-widest text-surface-500 font-black">CNN</p>
+                            <p className="text-xl font-black text-surface-100 mt-2">
+                                {((validationResult.scores?.cnn_score || 0) * 100).toFixed(1)}%
+                            </p>
+                        </div>
+                        <div className="rounded-xl bg-surface-900/60 p-4">
+                            <p className="text-[10px] uppercase tracking-widest text-surface-500 font-black">OCR</p>
+                            <p className="text-xl font-black text-surface-100 mt-2">
+                                {((validationResult.scores?.ocr_confidence || 0) * 100).toFixed(1)}%
+                            </p>
+                        </div>
+                        <div className="rounded-xl bg-surface-900/60 p-4">
+                            <p className="text-[10px] uppercase tracking-widest text-surface-500 font-black">DB Match</p>
+                            <p className="text-xl font-black text-surface-100 mt-2">
+                                {((validationResult.scores?.db_match_score || 0) * 100).toFixed(1)}%
+                            </p>
+                        </div>
+                    </div>
+
+                    {validatedDocId && (
+                        <div className="flex justify-end">
+                            <Link
+                                to={`/results/${validatedDocId}`}
+                                className="btn-secondary rounded-xl px-4 py-2 text-sm font-bold"
+                            >
+                                Open Detailed Result Page
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

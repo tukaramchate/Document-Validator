@@ -48,10 +48,13 @@ def save_document(file, user_id):
         file_size=file_size,
         user_id=user_id
     )
-    db.session.add(document)
-    from services.queue_service import enqueue_validation_job
-    enqueue_validation_job(document.id, user_id)
     try:
+        db.session.add(document)
+        db.session.flush()
+
+        from services.queue_service import enqueue_validation_job
+
+        enqueue_validation_job(document.id, user_id)
         db.session.commit()
     except Exception:
         db.session.rollback()

@@ -202,15 +202,20 @@ def validate_document(doc_id, user_id):
         extracted_data=extracted_data,
         field_matches=field_matches
     )
-    db.session.add(result)
     
-    # Increment usage count for free users — atomic SQL to prevent race conditions (H1 fix)
-    if user.role == 'user':
-        db.session.query(User).filter_by(id=user_id).update(
-            {User.validation_count: User.validation_count + 1}
-        )
+    try:
+        db.session.add(result)
         
-    db.session.commit()
+        # Increment usage count for free users — atomic SQL to prevent race conditions (H1 fix)
+        if user.role == 'user':
+            db.session.query(User).filter_by(id=user_id).update(
+                {User.validation_count: User.validation_count + 1}
+            )
+            
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
 
     logger.info(f'Document {doc_id} validated: {verdict} (score: {final_score})')
     return result.to_dict()
@@ -230,7 +235,9 @@ def revalidate_document(doc_id, user_id):
         from models.user import User
         user = db.session.get(User, user_id)
         if user and user.role == 'user' and user.validation_count > 0:
-            user.validation_count -= 1
+            db.session.query(User).filter_by(id=user_id).update(
+                {User.validation_count: User.validation_count - 1}
+            )
 
         db.session.delete(document.result)
         db.session.flush()  # Flush deletion before expiring

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from models import db
 
 class ValidationJob(db.Model):
@@ -8,13 +8,19 @@ class ValidationJob(db.Model):
     document_id = db.Column(db.Integer, db.ForeignKey('documents.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     status = db.Column(db.String(20), default='QUEUED')  # QUEUED, PROCESSING, COMPLETED, FAILED
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     started_at = db.Column(db.DateTime)
     finished_at = db.Column(db.DateTime)
     error_message = db.Column(db.Text)
 
-    document = db.relationship('Document', backref='validation_jobs')
-    user = db.relationship('User', backref='validation_jobs')
+    document = db.relationship(
+        'Document',
+        backref=db.backref('validation_jobs', cascade='all, delete-orphan', passive_deletes=True),
+    )
+    user = db.relationship(
+        'User',
+        backref=db.backref('validation_jobs', cascade='all, delete-orphan', passive_deletes=True),
+    )
 
     def to_dict(self):
         return {

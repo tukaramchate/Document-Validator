@@ -1,6 +1,6 @@
-# VeriAcd (Document-Validator)
+# VeriAcad (Document-Validator)
 
-VeriAcd is a full-stack educational document validation platform.
+VeriAcad is a full-stack educational document validation platform.
 It verifies uploaded marksheets/certificates using:
 
 - CNN-based visual forgery detection

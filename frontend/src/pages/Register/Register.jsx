@@ -95,7 +95,7 @@ export default function Register() {
                                     : 'bg-surface-800 border-surface-200 text-surface-400 hover:border-surface-300'
                                     }`}
                             >
-                                {r === 'user' ? 'Student' : 'Institution'}
+                                {r === 'user' ? 'User' : 'Institution'}
                             </button>
                         ))}
                     </div>

@@ -42,7 +42,7 @@ export default function Footer() {
                                 <ShieldCheck className="text-white w-6 h-6" />
                             </div>
                             <div>
-                            <div className="text-sm font-black text-white">VeriAcd</div>
+                            <div className="text-sm font-black text-white">VeriAcad</div>
                                 <div className="text-xs text-surface-400">Team Error-404</div>
                             </div>
                         </Link>
@@ -90,7 +90,7 @@ export default function Footer() {
                             <div className="flex items-start gap-3">
                                 <MapPin size={16} className="text-brand-400 shrink-0 mt-0.5" />
                                 <div>
-                                    <div className="font-semibold text-surface-200">Team Error-404</div>
+                                    <div className="font-semibold text-surface-200">Team Error_404</div>
                                     <div className="text-xs text-surface-400">Pune, MH</div>
                                 </div>
                             </div>
@@ -119,7 +119,7 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="mt-12 pt-8 border-t border-surface-800/20 flex flex-col sm:flex-row items-center justify-between gap-6">
                     <p className="text-xs text-surface-500 font-medium">
-                        © {currentYear} Team Firewall_Breakers. All rights reserved.
+                        © {currentYear} Team Error_404. All rights reserved.
                     </p>
                     <div className="flex items-center gap-6 text-xs text-surface-400 flex-wrap justify-center sm:justify-end">
                         <Link to="/help" className="hover:text-surface-200 transition-colors">Privacy Policy</Link>

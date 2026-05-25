@@ -33,7 +33,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-from src.cnn.model_factory import CNNModelFactory
+from src.cnn.model_factory import CNNModelFactory, FormatClassifierFactory
 from src.document_classifier import DocumentClassifier
 from src.exceptions import (
     CircuitBreakerOpenError,
@@ -105,7 +105,9 @@ class LoggingObserver(PipelineObserver):
             f"institution={result.institution_recognition.university_name}, "
             f"doc_type={result.document_classification.primary_type.value}, "
             f"cnn_score={result.cnn_result.score:.4f}, "
-            f"format_confidence={result.format_validation.overall_confidence:.4f}, "
+            f"format_institution={result.format_prediction.get('institution', 'n/a')}, "
+            f"format_confidence={result.format_prediction.get('confidence', 0):.4f}, "
+            f"overall_confidence={result.format_validation.overall_confidence:.4f}, "
             f"total_time={total_duration_seconds:.3f}s"
         )
 
@@ -146,6 +148,9 @@ class DocumentValidator:
         self._cnn_class_names: list[str] = ["fake", "real"]
         self._cnn_is_mock: bool = True
 
+        # Format classifier (institution-specific layout model)
+        self._format_factory = FormatClassifierFactory()
+
         self._extraction_strategy = GeminiExtractionStrategy(
             cache=_extraction_cache,
             circuit_breaker=_gemini_circuit_breaker,
@@ -170,7 +175,7 @@ class DocumentValidator:
         self._observers.remove(observer)
 
     def load_model(self) -> None:
-        """Load the CNN model using the Factory pattern."""
+        """Load the CNN model and Format Classifier using the Factory pattern."""
         factory = CNNModelFactory()
         allow_mock = APP_ENV != "production"
         self._cnn_model, self._cnn_class_names, self._cnn_is_mock = factory.load(
@@ -179,6 +184,13 @@ class DocumentValidator:
         logger.info(
             f"DocumentValidator: CNN model loaded (mock={self._cnn_is_mock})"
         )
+        # Load institution format classifier (non-blocking — skips if model absent)
+        loaded = self._format_factory.load(allow_missing=True)
+        if loaded:
+            logger.info(
+                f"DocumentValidator: Format classifier loaded "
+                f"— classes: {self._format_factory.classes}"
+            )
 
     def validate(self, image_path: str) -> dict[str, Any]:
         """
@@ -224,6 +236,14 @@ class DocumentValidator:
             default=CNNResult(),
         )
         result.cnn_result = cnn_result
+
+        # ── Stage 2b: Institution Format Classification ───
+        format_prediction = self._run_stage(
+            "format_classification",
+            lambda: self._format_factory.predict(processed),
+            default={"institution": None, "confidence": 0.0, "scores": {}, "is_available": False},
+        )
+        result.format_prediction = format_prediction
 
         # ── Stage 3: OCR extraction ─────────────────────
         extraction = self._run_stage(
@@ -391,6 +411,7 @@ class DocumentValidator:
         flags = {
             "requires_manual_review": False,
             "potential_forgery": False,
+            "format_mismatch": False,
         }
 
         # Flag for manual review
@@ -406,12 +427,41 @@ class DocumentValidator:
         if result.cnn_result.is_mock:
             flags["requires_manual_review"] = True
 
-        # Flag for potential forgery
+        # Flag for potential forgery (binary CNN)
         if not result.cnn_result.is_mock and result.cnn_result.score < 0.40:
             flags["potential_forgery"] = True
 
         if result.format_validation.overall_confidence < 0.60:
             flags["potential_forgery"] = True
+
+        # ── Format mismatch detection (institution-specific CNN) ──────────
+        fp = result.format_prediction
+        if fp.get("is_available") and fp.get("institution") and fp.get("confidence", 0) >= 0.70:
+            predicted_format = fp["institution"].upper().strip()
+            # Get the OCR-claimed institution name
+            ocr_institution = (
+                result.ocr_result.fields.get("institution") or
+                result.institution_recognition.university_name or ""
+            ).upper().strip()
+
+            # Check if predicted format institution appears in claimed institution name
+            # e.g. predicted="BNMIT" should match "B.N.M INSTITUTE OF TECHNOLOGY"
+            FORMAT_ALIASES: dict[str, list[str]] = {
+                "BNMIT":      ["BNM", "B.N.M", "BNM INSTITUTE"],
+                "GHRCEM":     ["GHRCEM", "GH RAISONI"],
+                "SPPU":       ["SPPU", "SAVITRIBAI PHULE", "PUNE UNIVERSITY"],
+                "DIGILOCKER": ["DIGILOCKER"],
+            }
+            aliases = FORMAT_ALIASES.get(predicted_format, [predicted_format])
+            match_found = any(alias in ocr_institution for alias in aliases)
+
+            if ocr_institution and not match_found:
+                flags["format_mismatch"] = True
+                flags["potential_forgery"] = True
+                logger.warning(
+                    f"FORMAT MISMATCH: CNN predicts '{predicted_format}' layout "
+                    f"(conf={fp['confidence']:.3f}) but OCR claims '{ocr_institution}'"
+                )
 
         return flags
 

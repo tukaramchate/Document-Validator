@@ -13,6 +13,8 @@ class InstitutionRecord(db.Model):
     metadata_fields = db.Column(db.JSON, nullable=True) # JSON store for extra fields like DOB, expiry, etc.
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
+    __table_args__ = (db.UniqueConstraint('institution_id', 'id_number', name='uq_inst_id_number'),)
+
     # Relationship back to the institution (User)
     institution = db.relationship('User', backref=db.backref('records', lazy=True))
 
